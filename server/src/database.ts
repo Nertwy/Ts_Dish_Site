@@ -55,12 +55,12 @@ export const checkifAdmin = async (user: User): Promise<boolean> => {
   a.size >= 1 ? (check = true) : (check = false);
   return check;
 };
-export const getUserIdByName = async (username: string) => {
-  let id = await (
-    await docUsersCol.where("name", "==", `${username}`).get()
-  ).docs[0].id;
-  return id;
-};
+// export const getUserIdByName = async (username: string) => {
+//   let id = await (
+//     await docUsersCol.where("name", "==", `${username}`).get()
+//   ).docs[0].id;
+//   return id;
+// };
 
 export const writeAccessTokenToDB = async (id: string, AccessToken: string) => {
   docUsersCol.doc(id).update({

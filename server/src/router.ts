@@ -10,6 +10,7 @@ import jsonData from "./Database_of_things/FoodDB.json";
 import multer from "multer";
 import ApiErrors from "./errors";
 import RouteLogic from "./RouteLogic";
+import { checkIfLoginCorrect } from "./postgre";
 const router = Router();
 let storageConfig = multer.diskStorage({
   destination: (req, res, cb) => {
@@ -39,7 +40,7 @@ const upload = multer({
 router.use(cookieParser());
 
 router.post("/register", verifyEmailExist,RouteLogic.Register);
-router.post("/login", verifyLogin, RouteLogic.Login);
+router.post("/login", checkIfLoginCorrect, RouteLogic.Login);
 router.post(
   "/addDish",
   /*verifyAuth,*/ RouteLogic.AddDish,

@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { Client, Pool } from "pg";
 import { Dish } from '../../interfaces/Ingridient'
 import { User } from "../../interfaces/user";
+import ApiErrors from "./errors";
+import { hashUserPass } from "./functions";
 
 
 
@@ -55,7 +57,7 @@ async function createDishTable(): Promise<void> {
     }
 }
 
-export async function checkEmailExists(email: string=""): Promise<boolean> {
+export async function checkEmailExists(email: string = ""): Promise<boolean> {
     const client = await pool.connect();
 
     try {
@@ -105,11 +107,36 @@ async function getUserByEmail(email: string): Promise<User | null> {
         client.release();
     }
 }
-async function storeTokens(userId: number, tokens: string): Promise<void> {
-    const token = tokens;
-    const tokenQuery = 'INSERT INTO tokens (user_id, access_token, refresh_token) VALUES ($1, $2, $3)';
-    const tokenValues = [userId, token];
 
+export async function checkIfLoginCorrect(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+
+) {
+    let user: User = req.body;
+    // let pass = hashUserPass(user.password);
+    const query =
+        `SELECT * FROM users 
+    WHERE email = $1 AND  password = $2;`
+    const tokenValues = [user.email, user.password]
+    try {
+        const result = await pool.query(query, tokenValues)
+        console.log(result.rows.length);
+
+        if (result.rows.length <= 0)
+            next(ApiErrors.AlreadyExists("No user found"))
+        next()
+    } catch (error) {
+        console.error("Error couldnt check the login!");
+        throw error
+
+    }
+}
+export async function storeRefreshToken(user: User, token: string): Promise<void> {
+
+    const tokenValues = [token, user.id];
+    const tokenQuery = `INSERT INTO "RefreshToken" ("Name",user_id) VALUES ($1, $2)`;
     try {
         await pool.query(tokenQuery, tokenValues);
     } catch (error) {
@@ -139,6 +166,7 @@ async function updateAccessToken(userId: number, token: string): Promise<void> {
         client.release();
     }
 }
+
 export async function insertUser(user: User): Promise<void> {
     const client = await pool.connect();
     const query = `

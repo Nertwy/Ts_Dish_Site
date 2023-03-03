@@ -12,7 +12,6 @@ import { User } from "../../interfaces/user";
 import {
   docUsersCol,
   getUserByName,
-  getUserIdByName,
   writeAccessTokenToDB,
   writeRefreshTokenToDB
 } from "./database";
@@ -21,18 +20,20 @@ import jwt, { TokenExpiredError } from "jsonwebtoken";
 import ApiErrors from "./errors";
 import multer from "multer";
 import { checkPropertiesNull, fileIsImage } from "./functions";
-import { insertUser, checkEmailExists } from "./postgre";
+import { insertUser, checkEmailExists, storeRefreshToken } from "./postgre";
 
 const upload = multer({ dest: "uploads/" });
 
 class RouteLogic {
   async Login(req: Request, res: Response, next: Function) {
     try {
-      let userData: User = await getUserByName(req.body.name);
+      let userData: User = req.body
       const refreshToken = createRefreshToken(userData);
-      sendRefreshToken(res, refreshToken);
       const accessToken = createAccessToken(userData);
-      writeRefreshTokenToDB(await getUserIdByName(req.body.name), refreshToken);
+      await storeRefreshToken(userData,refreshToken)
+
+      // writeRefreshTokenToDB(await getUserIdByName(req.body.name), refreshToken);
+      sendRefreshToken(res, refreshToken);
       // writeAccessTokenToDB(await getUserIdByName(req.body.name), accessToken);
       res.send({ token: accessToken, success: true });
       return res.end();
@@ -75,7 +76,8 @@ class RouteLogic {
         return next(ApiErrors.BadRequest("User have wrong refresh Token!", []));
       //UPDATE REFRESH TOKEN IN DB THEN SEND NEW TO USER;
       const newRT = createRefreshToken(user);
-      writeRefreshTokenToDB(await getUserIdByName(user.name), newRT);
+      await storeRefreshToken(user,newRT)
+      // writeRefreshTokenToDB(await getUserIdByName(user.name), newRT);
       return res
         .status(200)
         .cookie("jrt", newRT, {
