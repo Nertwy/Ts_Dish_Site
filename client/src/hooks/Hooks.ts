@@ -21,5 +21,15 @@ const useInfiniteScroll = (callback: any) => {
   }
   return [isFetching, setIsFetching] as const;
 };
-
+export const useInput = (inputVal: string) => {
+  const [value, setValue] = useState(inputVal);
+  const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
+    let a = e.currentTarget.value;
+    setValue(a);
+  };
+  return { 
+    value,
+    onChange:handleChange
+  }
+};
 export default useInfiniteScroll;

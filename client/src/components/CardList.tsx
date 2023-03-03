@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
 import { FoodAll } from "../../../interfaces/FoodsAll";
 import Card from "./Card";
-import img from "../images/Background.jpg";
 
 const CardList: FC<{ func: Function | undefined }> = (prop: {
   func: Function | undefined;
@@ -19,13 +18,13 @@ const CardList: FC<{ func: Function | undefined }> = (prop: {
   };
   const fetchCard = async (id: number): Promise<FoodAll> => {
     let responce = await fetch(`http://localhost:8000/data/?id=${id}`);
-    let data = await responce.json();
+    let data:FoodAll = await responce.json();
     let cardInfo: FoodAll = {
       id: id,
       name: data.name,
-      cuisine: data.cuisine.name,
-      url: data.imageUrl,
-      Ingridiences: data.composition,
+      cuisine: data.cuisine,
+      url: data.url,
+      Ingridiences: data.Ingridiences,
       slug: data.slug,
       transport: prop.func
     };

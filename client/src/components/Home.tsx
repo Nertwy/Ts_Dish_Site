@@ -1,4 +1,4 @@
-import React, { FC, StrictMode } from "react";
+import React, { FC, StrictMode, useEffect, useState } from "react";
 import CardList from "./CardList";
 import Footer from "./Footer";
 import { FoodAll } from "../../../interfaces/FoodsAll";
@@ -18,6 +18,19 @@ const Header: FC<{ setID?: Function }> = (props: { setID?: Function }) => {
 };
 
 const Home: FC<{Dish:FoodAll,setID?:Function}> = (props:{Dish: FoodAll,setID?:Function }) => {
+
+  let [token,setToken] = useState();
+  const handleRefresh = async () => {
+    let a = await fetch("http://localhost:8000/refresh_token", {
+      method: "POST",
+      credentials: "include"
+    });
+    let b = await a.json();
+    console.log(b);
+  };
+  useEffect(()=>{
+    handleRefresh()
+  },[])
   return (
     <StrictMode>
       <Header></Header>

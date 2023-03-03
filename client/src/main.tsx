@@ -1,10 +1,9 @@
-import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import { BrowserRouter, Link, Router, Routes, Route } from "react-router-dom";
-import Home from "./components/Home";
-import DishPage from "./components/DishPage";
+import React from "react";
 import Wrapper from "./components/Wrapper";
+import Login from "./components/Login";
+
 ReactDOM.render(
   <Wrapper/>,
   document.getElementById("root")

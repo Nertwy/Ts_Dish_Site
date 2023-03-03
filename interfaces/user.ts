@@ -1,7 +1,20 @@
+//Implement tokenVersion to revoke all user tokens to be invalid
+interface Tokens {
+  access: string;
+  refresh: string;
+  tokenVersion: number;
+}
 export interface User {
+  id: number;
   name: string;
   password: string;
-  token?: string;
-  email?:string;
-  confirm?:string;
+  email?: string;
+  confirmed:boolean;
+  tokens?:Tokens
+  role?: Role;
+}
+enum Role {
+  Admin = "ADMIN",
+  User = "USER",
+  Moderator = "MODERATOR"
 }

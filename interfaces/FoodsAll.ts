@@ -1,26 +1,25 @@
 interface Measures {
-    id: number,
-    name: string,
-
+  id: number;
+  name: string;
 }
-interface Ingredient{
-    id?:number,
-    name:string
-}
-export interface Ingredients {
-    id: number,
-    amount: number,
-    name: string
-    measureUnit: Measures
-    ingredient:Ingredient
+export interface Ingredient {
+  id: number;
+  amount: number;
+  name: string;
+  measureUnit: string;
 }
 
 export interface FoodAll {
-    id: number,
-    name?: string,
-    cuisine: string,
-    url: string
-    Ingridiences: Ingredients[]
-    slug:string
-    transport?:Function
+  id: number;
+  name?: string;
+  cuisine: string;
+  url: string;
+  Ingridiences: Ingredient[];
+  slug: string;
+  transport?: Function;
+  recipes?: Recipe;
+}
+export interface Recipe {
+  step: string[];
+  id: number[];
 }

@@ -1,20 +1,64 @@
-import { Request, Response, Router } from "express";
-import path from "path";
-import fs from "fs";
-import json_data from "./Database_of_things/recipes.json";
+
+import {
+  verifyEmailExist,
+  verifyLogin,
+} from "../middleware/middleware";
+import { Router, Request, Response } from "express";
+import cookieParser from "cookie-parser";
+import { verifyTokenBearer } from "./token";
+import jsonData from "./Database_of_things/FoodDB.json";
+import multer from "multer";
+import ApiErrors from "./errors";
+import RouteLogic from "./RouteLogic";
 const router = Router();
-const photos_folder = path.resolve(__dirname + "/Database_of_things/images/");
-router.post("/login");
-router.post("/registration");
+let storageConfig = multer.diskStorage({
+  destination: (req, res, cb) => {
+    cb(null, "./uploads");
+  },
+  filename(req, file, callback) {
+    callback(null, Date.now() + "-" + file.originalname);
+  }
+});
+const MIMETYPE_MAP: any = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/jpg": "jpg"
+};
+const upload = multer({
+  storage: storageConfig,
+  limits: { fileSize: 50_000_000 },
+  fileFilter(req, file, callback) {
+    const isValid = MIMETYPE_MAP[file.mimetype];
+    if (!isValid) {
+      callback(ApiErrors.BadRequest("Bad file extension!"));
+      callback(null, false);
+    }
+    callback(null, true);
+  }
+});
+router.use(cookieParser());
+
+router.post("/register", verifyEmailExist,RouteLogic.Register);
+router.post("/login", verifyLogin, RouteLogic.Login);
+router.post(
+  "/addDish",
+  /*verifyAuth,*/ RouteLogic.AddDish,
+  upload.single("image")
+);
+
+router.get("/refresh", RouteLogic.Refresh);
+
+router.post("/logout", RouteLogic.Logout);
+router.get("/getDB", verifyTokenBearer, RouteLogic.PostFood);
 
 router.get("/data", (req: Request, res: Response) => {
   try {
-    // json_data[0].node.
     let id = Number(req.query.id);
-    res.send(json_data[id].node);
+    res.send(jsonData[id]);
   } catch (error) {
     res.status(400);
   }
   res.end();
 });
+router.get("/checkAccessToken", RouteLogic.Verify);
 export default router;

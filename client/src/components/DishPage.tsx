@@ -1,11 +1,11 @@
 import React, { FC, useEffect, useState } from "react";
-import { FoodAll, Ingredients } from "../../../interfaces/FoodsAll";
+import { FoodAll, Ingredient } from "../../../interfaces/FoodsAll";
 import Card from "./Card";
-import Ingridiences from "./IngridienceFile.json";
+import Ingridiences from "./FoodDB.json";
 import StickyNav from "./StickyNav";
 
 const DishPage: FC<FoodAll> = (props) => {
-  const [ingredient, setIngredient] = useState<Ingredients[]>(
+  const [ingredient, setIngredient] = useState<Ingredient[]>(
     props.Ingridiences
   );
 
@@ -21,7 +21,7 @@ const DishPage: FC<FoodAll> = (props) => {
     // console.log(allFood.id);
     
     if (!props.Ingridiences.length) {
-      let res: Ingredients[] = JSON.parse(localStorage.getItem("ing")!);
+      let res: Ingredient[] = JSON.parse(localStorage.getItem("ing")!);
       let food: FoodAll = JSON.parse(localStorage.getItem("food")!);
       setIngredient(res);
       setAllFood(food);
@@ -43,9 +43,9 @@ const DishPage: FC<FoodAll> = (props) => {
           {ingredient.map((e,i) => (
             <div className='flex justify-between' key={i}>
               <div className='float-left'>
-                {e.amount === 0 ? null : e.amount} {e.measureUnit.name}
+                {e.amount === 0 ? null : e.amount} {e.measureUnit}
               </div>
-              <div className="float-right">{e.ingredient.name}</div>
+              <div className="float-right">{e.name}</div>
             </div>
           ))}
         </div>
@@ -54,9 +54,9 @@ const DishPage: FC<FoodAll> = (props) => {
           <ol
             className='list-decimal pl-7 space-y-3 font-mono text-lg'
             type='1'>
-            {Ingridiences.recipes[allFood.id].map((elem, index) => (
+            {Ingridiences[allFood.id].recipes.step.map((elem, index) => (
               <li key={index} className='list-decimal'>
-                {elem.description}
+                {elem}
               </li>
             ))}
           </ol>

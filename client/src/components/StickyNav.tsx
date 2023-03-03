@@ -17,7 +17,7 @@ const ToggleSwitch: FC = () => {
       />
       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
       <span className='ml-3 text-sm font-medium text-gray-900 dark:text-gray-300 '>
-      ☀️
+        ☀️
       </span>
     </label>
   );
@@ -44,7 +44,7 @@ const StickyNav: FC<{ setFood?: Function }> = (props: {
   };
   const navigate = useNavigate();
   return (
-    <nav className='sticky top-0  p-5 drop-shadow bg-green-400 opacity-70 text-center space-x-16 text-2xl nav-show-anim z-50' >
+    <nav className='sticky top-0  p-5 drop-shadow bg-green-400 opacity-70 text-center space-x-16 text-2xl nav-show-anim z-50'>
       <a
         onClick={() => {
           console.log(window.location.href);
@@ -76,8 +76,10 @@ const StickyNav: FC<{ setFood?: Function }> = (props: {
         className='border-2 border-transparent p-2 hover:border-2 hover:border-white  rounded-xl transition hover:duration-300 hover:cursor-pointer'>
         About
       </a>
-      <a className='border-2 border-transparent p-2 hover:border-2 hover:border-white  rounded-xl transition hover:duration-300 hover:cursor-pointer'>
-        Contacts
+      <a
+        className='border-2 border-transparent p-2 hover:border-2 hover:border-white  rounded-xl transition hover:duration-300 hover:cursor-pointer'
+        onClick={() => navigate("/Login")}>
+        Login
       </a>
       <ToggleSwitch></ToggleSwitch>
     </nav>
