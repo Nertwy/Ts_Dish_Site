@@ -7,20 +7,14 @@ import {
   verifyAccessToken,
   verifyRefreshToken
 } from "./token";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { User } from "../../interfaces/user";
-import {
-  docUsersCol,
-  getUserByName,
-  writeAccessTokenToDB,
-  writeRefreshTokenToDB
-} from "./database";
-import { db } from "./database";
+
 import jwt, { TokenExpiredError } from "jsonwebtoken";
 import ApiErrors from "./errors";
 import multer from "multer";
 import { checkPropertiesNull, fileIsImage } from "./functions";
-import { insertUser, checkEmailExists, storeRefreshToken } from "./postgre";
+import { insertUser, checkEmailExists, storeRefreshToken, getUserByEmail, getDish } from "./postgre";
 
 const upload = multer({ dest: "uploads/" });
 
@@ -30,11 +24,9 @@ class RouteLogic {
       let userData: User = req.body
       const refreshToken = createRefreshToken(userData);
       const accessToken = createAccessToken(userData);
-      await storeRefreshToken(userData,refreshToken)
+      await storeRefreshToken(userData, refreshToken)
 
-      // writeRefreshTokenToDB(await getUserIdByName(req.body.name), refreshToken);
       sendRefreshToken(res, refreshToken);
-      // writeAccessTokenToDB(await getUserIdByName(req.body.name), accessToken);
       res.send({ token: accessToken, success: true });
       return res.end();
     } catch (e) {
@@ -69,14 +61,15 @@ class RouteLogic {
       let payload: any = verifyRefreshToken(token);
 
       if (payload === null) next(ApiErrors.BadRequest("Invalid Token"));
-      const user = await getUserByName(payload!.name);
-      if (!user) next(Error("No user with this name"));
+      // const user = await getUserByName(payload!.name);
+      const user = await getUserByEmail(payload!.email);
+      if (!user) return next(Error("No user with this name"));
 
       if (user.tokens?.refresh !== token)
         return next(ApiErrors.BadRequest("User have wrong refresh Token!", []));
       //UPDATE REFRESH TOKEN IN DB THEN SEND NEW TO USER;
       const newRT = createRefreshToken(user);
-      await storeRefreshToken(user,newRT)
+      await storeRefreshToken(user, newRT)
       // writeRefreshTokenToDB(await getUserIdByName(user.name), newRT);
       return res
         .status(200)
@@ -109,6 +102,11 @@ class RouteLogic {
       return next(ApiErrors.BadRequest("Not all fields have been filed"));
     res.send({ ok: true });
     next();
+  }
+  async getDish(req: Request, res: Response, next: NextFunction) {
+    let data = await getDish(req.body.id);
+    res.json(data)
+    next()
   }
 }
 

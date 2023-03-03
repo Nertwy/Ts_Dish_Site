@@ -1,7 +1,6 @@
 
 import {
   verifyEmailExist,
-  verifyLogin,
 } from "../middleware/middleware";
 import { Router, Request, Response } from "express";
 import cookieParser from "cookie-parser";
@@ -39,7 +38,7 @@ const upload = multer({
 });
 router.use(cookieParser());
 
-router.post("/register", verifyEmailExist,RouteLogic.Register);
+router.post("/register", verifyEmailExist, RouteLogic.Register);
 router.post("/login", checkIfLoginCorrect, RouteLogic.Login);
 router.post(
   "/addDish",
@@ -51,7 +50,7 @@ router.get("/refresh", RouteLogic.Refresh);
 
 router.post("/logout", RouteLogic.Logout);
 router.get("/getDB", verifyTokenBearer, RouteLogic.PostFood);
-
+router.get("/dish", RouteLogic.getDish)
 router.get("/data", (req: Request, res: Response) => {
   try {
     let id = Number(req.query.id);

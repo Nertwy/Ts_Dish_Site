@@ -4,14 +4,10 @@ import { MulterError } from "multer";
 import { isGeneratorFunction } from "util/types";
 
 import { User } from "../../interfaces/user";
-import {
-  checkifAdmin,
-  checkIfLoginCorrect,
-  checkIfNameExists
-} from "../src/database";
+
 import ApiErrors from "../src/errors";
 import { convertUserData, fileIsImage, hashUserPass } from "../src/functions";
-import { checkEmailExists } from "../src/postgre";
+import { checkEmailExists, checkIfLoginCorrect } from "../src/postgre";
 
 export const verifyToken = (req: Request, res: Response, next: Function) => {
   const token =
@@ -28,26 +24,26 @@ export const verifyToken = (req: Request, res: Response, next: Function) => {
   return next();
 };
 
-export const verifyAdmin = async (
-  req: Request,
-  res: Response,
-  next: Function
-) => {
-  const user: User = req.body;
+// export const verifyAdmin = async (
+//   req: Request,
+//   res: Response,
+//   next: Function
+// ) => {
+//   const user: User = req.body;
 
-  try {
-    let resul = await checkifAdmin(user);
-    if (resul) {
-      return next();
-    } else {
-      res.status(403);
-      res.end("No premision");
-      throw new Error("Premision to add dish denied");
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
+//   try {
+//     let resul = await checkifAdmin(user);
+//     if (resul) {
+//       return next();
+//     } else {
+//       res.status(403);
+//       res.end("No premision");
+//       throw new Error("Premision to add dish denied");
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
 
 // export const verifyUserExist = async (
 //   req: Request,
@@ -73,20 +69,20 @@ export const verifyEmailExist = async (req: Request, res: Response, next: NextFu
   }
   return next();
 }
-export const verifyLogin = async (
-  req: Request,
-  res: Response,
-  next: Function
-) => {
-  let check = await checkIfLoginCorrect(
-    req.body.name,
-    hashUserPass(req.body.password)
-  );
-  if (check) return next();
-  else {
-    return next(ApiErrors.BadRequest("Wrong login or Password"));
-  }
-};
+// export const verifyLogin = async (
+//   req: Request,
+//   res: Response,
+//   next: Function
+// ) => {
+//   let check = await checkIfLoginCorrect(
+//     req.body.name,
+//     hashUserPass(req.body.password)
+//   );
+//   if (check) return next();
+//   else {
+//     return next(ApiErrors.BadRequest("Wrong login or Password"));
+//   }
+// };
 
 export const verifyAuth = async (
   req: Request,

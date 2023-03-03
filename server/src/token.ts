@@ -3,7 +3,6 @@ import { decode, sign, verify } from "jsonwebtoken";
 import "dotenv/config";
 import { Request, Response } from "express";
 import ApiErrors from "./errors";
-import { docUsersCol } from "./database";
 
 export const createAccessToken = (user: User): string => {
   const token = sign(

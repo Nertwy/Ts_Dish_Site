@@ -34,28 +34,28 @@ async function insertDish(dish: Dish): Promise<void> {
     }
 }
 
-async function createDishTable(): Promise<void> {
-    const query = `
-      CREATE TABLE IF NOT EXISTS dishes (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        cuisine VARCHAR(255) NOT NULL,
-        slug VARCHAR(255) NOT NULL,
-        url VARCHAR(255) NOT NULL,
-        ingredients JSONB NOT NULL,
-        recipes JSONB NOT NULL
-      );
-    `;
+// async function createDishTable(): Promise<void> {
+//     const query = `
+//       CREATE TABLE IF NOT EXISTS dishes (
+//         id SERIAL PRIMARY KEY,
+//         name VARCHAR(255) NOT NULL,
+//         cuisine VARCHAR(255) NOT NULL,
+//         slug VARCHAR(255) NOT NULL,
+//         url VARCHAR(255) NOT NULL,
+//         ingredients JSONB NOT NULL,
+//         recipes JSONB NOT NULL
+//       );
+//     `;
 
-    try {
-        const client = await pool.connect();
-        await client.query(query);
-        console.log('Dish table created successfully');
-        client.release();
-    } catch (error) {
-        console.error('Error creating dish table: ', error);
-    }
-}
+//     try {
+//         const client = await pool.connect();
+//         await client.query(query);
+//         console.log('Dish table created successfully');
+//         client.release();
+//     } catch (error) {
+//         console.error('Error creating dish table: ', error);
+//     }
+// }
 
 export async function checkEmailExists(email: string = ""): Promise<boolean> {
     const client = await pool.connect();
@@ -77,7 +77,7 @@ export async function checkEmailExists(email: string = ""): Promise<boolean> {
     }
 }
 
-async function getUserByEmail(email: string): Promise<User | null> {
+export async function getUserByEmail(email: string): Promise<User | null> {
     const client = await pool.connect();
     try {
         const result = await client.query(`SELECT * FROM users WHERE email = $1`, [email]);
@@ -122,7 +122,6 @@ export async function checkIfLoginCorrect(
     const tokenValues = [user.email, user.password]
     try {
         const result = await pool.query(query, tokenValues)
-        console.log(result.rows.length);
 
         if (result.rows.length <= 0)
             next(ApiErrors.AlreadyExists("No user found"))
@@ -144,14 +143,24 @@ export async function storeRefreshToken(user: User, token: string): Promise<void
         throw error;
     }
 }
+async function storeAccessToken(user: User, token: string) {
+    const tokenValues = [token, user.id];
+    const tokenQuery = `INSERT INTO "AccessToken" ("Name",user_id) VALUES ($1, $2)`;
+    try {
+        await pool.query(tokenQuery, tokenValues);
+    } catch (error) {
+        console.error('Error storing tokens:', error);
+        throw error;
+    }
+}
 async function updateAccessToken(userId: number, token: string): Promise<void> {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
 
         const queryText = `
-        UPDATE users
-        SET access_token = $1
+        UPDATE "AccessToken"
+        SET Name = $1
         WHERE user_id = $2
       `;
         const values = [token, userId];
@@ -176,4 +185,13 @@ export async function insertUser(user: User): Promise<void> {
     const values = [user.name, user.password, user.email, user.confirmed, user.role];
     await client.query(query, values);
     client.release()
+}
+
+export async function getDish(id: number) {
+    const client = await pool.connect();
+    const query = `SELECT * FROM dishes WHERE id=$1`;
+    const values = [id];
+    let dish = await client.query(query, values);
+    client.release()
+    return dish
 }
