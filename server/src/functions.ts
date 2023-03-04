@@ -25,3 +25,8 @@ export const fileIsImage = (filename: string|undefined): boolean => {
   if(extension === "png" || extension === "jpeg" || extension === "gif" || extension ==="jpg") return true;
   return false
 };
+
+export function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}

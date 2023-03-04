@@ -3,10 +3,10 @@ import jwt from "jsonwebtoken";
 import { MulterError } from "multer";
 import { isGeneratorFunction } from "util/types";
 
-import { User } from "../../interfaces/user";
+import { Role, User } from "../../interfaces/user";
 
 import ApiErrors from "../src/errors";
-import { convertUserData, fileIsImage, hashUserPass } from "../src/functions";
+import { convertUserData, fileIsImage, hashUserPass, validateEmail } from "../src/functions";
 import { checkEmailExists, checkIfLoginCorrect } from "../src/postgre";
 
 export const verifyToken = (req: Request, res: Response, next: Function) => {
@@ -24,6 +24,13 @@ export const verifyToken = (req: Request, res: Response, next: Function) => {
   return next();
 };
 
+export const emailValidatorMiddleware = (req:Request,res:Response,next:NextFunction)=>{
+  const {email} = req.body;
+  if(!email || !validateEmail(email)){
+    return res.status(400).json({message:"Invalid email address"});
+  }
+  next()
+}
 // export const verifyAdmin = async (
 //   req: Request,
 //   res: Response,
@@ -45,6 +52,16 @@ export const verifyToken = (req: Request, res: Response, next: Function) => {
 //   }
 // };
 
+export const verifyRoles =(...allowedRoles:Role[])=>{
+  return(req:Request,res:Response,next:NextFunction)=>{
+  const roles:Role[] = req.body.roles;
+    if(!roles) return res.sendStatus(401)
+    const rolesArray = [...allowedRoles]
+    const result =roles.map(role=>rolesArray.includes(role)).find(val=>val===true);
+    if(!result) return res.sendStatus(401);
+    next()
+  }
+}
 // export const verifyUserExist = async (
 //   req: Request,
 //   res: Response,
@@ -122,6 +139,7 @@ export const ErrorMiddleWare = (
     return res.status(400).json({ message: err.message });
   return res.status(500).json({ message: "Error accured" });
 };
+
 // export const ValidateImage = (req: Request, res: Response, next: Function) => {
 //   let file = req.file;
 //   const MaxIamgeSize: number|string = process.env.MAXIMAGESIZE! ||50_000 ;

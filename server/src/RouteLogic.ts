@@ -47,6 +47,8 @@ class RouteLogic {
   }
   Logout(req: Request, res: Response, next: Function) {
     try {
+      req.cookies.jrt;
+      
       res.clearCookie("jrt");
       res.end();
     } catch (error) {

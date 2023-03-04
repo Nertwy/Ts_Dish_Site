@@ -13,7 +13,7 @@ export interface User {
   tokens?:Tokens
   role?: Role;
 }
-enum Role {
+export enum Role {
   Admin = "ADMIN",
   User = "USER",
   Moderator = "MODERATOR"

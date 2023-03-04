@@ -6,6 +6,7 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import { buildSchema } from "graphql";
 import { graphqlHTTP } from "express-graphql"
+import { AddressInfo } from "net";
 const port: string | number = process.env.PORT || 8000;
 export const app = express();
 
@@ -30,10 +31,10 @@ app.use(
 // app.use(express.static(path.join(__dirname, "dist")));
 app.use(express.static(__dirname))
 app.get("/", (req, res) => {
+  res.json({asd:"HI"})
   // res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-app.listen(port,  () => {
-
-  console.log(`Listening on port ${port}`);
+const server= app.listen(port,  () => {
+  console.log(`Listening at port ${port}`);
 });

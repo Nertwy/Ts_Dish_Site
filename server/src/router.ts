@@ -1,11 +1,11 @@
 
 import {
+  emailValidatorMiddleware,
   verifyEmailExist,
 } from "../middleware/middleware";
 import { Router, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import { verifyTokenBearer } from "./token";
-import jsonData from "./Database_of_things/FoodDB.json";
 import multer from "multer";
 import ApiErrors from "./errors";
 import RouteLogic from "./RouteLogic";
@@ -37,8 +37,7 @@ const upload = multer({
   }
 });
 router.use(cookieParser());
-
-router.post("/register", verifyEmailExist, RouteLogic.Register);
+router.post("/register", emailValidatorMiddleware,verifyEmailExist, RouteLogic.Register);
 router.post("/login", checkIfLoginCorrect, RouteLogic.Login);
 router.post(
   "/addDish",
@@ -51,14 +50,14 @@ router.get("/refresh", RouteLogic.Refresh);
 router.post("/logout", RouteLogic.Logout);
 router.get("/getDB", verifyTokenBearer, RouteLogic.PostFood);
 router.get("/dish", RouteLogic.getDish)
-router.get("/data", (req: Request, res: Response) => {
-  try {
-    let id = Number(req.query.id);
-    res.send(jsonData[id]);
-  } catch (error) {
-    res.status(400);
-  }
-  res.end();
-});
+// router.get("/data", (req: Request, res: Response) => {
+//   try {
+//     let id = Number(req.query.id);
+//     res.send(jsonData[id]);
+//   } catch (error) {
+//     res.status(400);
+//   }
+//   res.end();
+// });
 router.get("/checkAccessToken", RouteLogic.Verify);
 export default router;

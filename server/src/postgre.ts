@@ -4,10 +4,9 @@ import { Dish } from '../../interfaces/Ingridient'
 import { User } from "../../interfaces/user";
 import ApiErrors from "./errors";
 import { hashUserPass } from "./functions";
+import food from './Database_of_things/FoodDB copy.json'
 
-
-
-const postgreString = 'postgresql://postgres:123@localhost:5432/postgres'
+const postgreString = 'postgresql://postgres:1234@localhost:5432/postgres'
 const pool = new Pool({
     connectionString: postgreString,
 });
@@ -20,8 +19,8 @@ async function insertDish(dish: Dish): Promise<void> {
     try {
         await client.query('BEGIN');
 
-        const queryText = 'INSERT INTO dishes (name, id, cuisine, slug, url, ingredients, recipes) VALUES ($1, $2, $3, $4, $5, $6, $7)';
-        const values = [dish.name, dish.id, dish.cuisine, dish.slug, dish.url, JSON.stringify(dish.ingredients), JSON.stringify(dish.recipes)];
+        const queryText = 'INSERT INTO dishes (name,  cuisine, slug, url, ingredients, recipes) VALUES ($1, $2, $3, $4, $5, $6)';
+        const values = [dish.name,  dish.cuisine, dish.slug, dish.url, JSON.stringify(dish.ingredients), JSON.stringify(dish.recipes)];
 
         await client.query(queryText, values);
 
@@ -34,28 +33,28 @@ async function insertDish(dish: Dish): Promise<void> {
     }
 }
 
-// async function createDishTable(): Promise<void> {
-//     const query = `
-//       CREATE TABLE IF NOT EXISTS dishes (
-//         id SERIAL PRIMARY KEY,
-//         name VARCHAR(255) NOT NULL,
-//         cuisine VARCHAR(255) NOT NULL,
-//         slug VARCHAR(255) NOT NULL,
-//         url VARCHAR(255) NOT NULL,
-//         ingredients JSONB NOT NULL,
-//         recipes JSONB NOT NULL
-//       );
-//     `;
+async function createDishTable(): Promise<void> {
+    const query = `
+      CREATE TABLE IF NOT EXISTS dishes (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        cuisine VARCHAR(255) NOT NULL,
+        slug VARCHAR(255) NOT NULL,
+        url VARCHAR(255) NOT NULL,
+        ingredients JSONB NOT NULL,
+        recipes JSONB NOT NULL
+      );
+    `;
 
-//     try {
-//         const client = await pool.connect();
-//         await client.query(query);
-//         console.log('Dish table created successfully');
-//         client.release();
-//     } catch (error) {
-//         console.error('Error creating dish table: ', error);
-//     }
-// }
+    try {
+        const client = await pool.connect();
+        await client.query(query);
+        console.log('Dish table created successfully');
+        client.release();
+    } catch (error) {
+        console.error('Error creating dish table: ', error);
+    }
+}
 
 export async function checkEmailExists(email: string = ""): Promise<boolean> {
     const client = await pool.connect();
@@ -143,6 +142,17 @@ export async function storeRefreshToken(user: User, token: string): Promise<void
         throw error;
     }
 }
+export async function deleteRefreshToken(token: string): Promise<void> {
+
+    const tokenValues = [token];
+    const tokenQuery = `Delete FROM "RefreshToken" WHERE Name = $1`;
+    try {
+        await pool.query(tokenQuery, tokenValues);
+    } catch (error) {
+        console.error('Error deleting token:', error);
+        throw error;
+    }
+}
 async function storeAccessToken(user: User, token: string) {
     const tokenValues = [token, user.id];
     const tokenQuery = `INSERT INTO "AccessToken" ("Name",user_id) VALUES ($1, $2)`;
@@ -195,3 +205,16 @@ export async function getDish(id: number) {
     client.release()
     return dish
 }
+
+    // food.forEach(async (elem)=>{
+    //     let data:Dish = {
+    //         cuisine:elem.cuisine,
+    //         ingredients:elem.Ingridiences,
+    //         name:elem.name,
+    //         recipes:elem.recipes,
+    //         slug:elem.slug,
+    //         url:elem.url
+    //     };
+    //     await insertDish(data)
+    // })    
+

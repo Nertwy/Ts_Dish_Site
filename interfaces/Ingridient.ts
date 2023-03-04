@@ -12,7 +12,7 @@ interface Recipe {
 
 export interface Dish {
   name: string;
-  id: number;
+  id?: number;
   cuisine: string;
   slug: string;
   url: string;
