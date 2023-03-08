@@ -1,8 +1,8 @@
 import React, { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import CardInt from "../../../interfaces/CardInt";
-import { FoodAll } from "../../../interfaces/FoodsAll";
-const Card: FC<FoodAll> = (props) => {
+import { Dish } from "../../../interfaces/Ingridient";
+import HeartButton from "./HeartContainer";
+const Card: FC<Dish> = (props) => {
   const navigate = useNavigate();
 
   const style =
@@ -17,6 +17,7 @@ const Card: FC<FoodAll> = (props) => {
         //Cannot invoke an object which is possibly 'undefined' in TS without ?.
       >
         <div className='h-96 overflow-hidden'>
+          
           <img
             src={props.url}
             alt='Meal'
@@ -33,6 +34,9 @@ const Card: FC<FoodAll> = (props) => {
           </h3>
           <p>{props.cuisine}</p>
         </div>
+        <div className="">
+      <HeartButton isLiked={false} handleClick={()=>{}}/>
+      </div>
       </div>
     </div>
   );

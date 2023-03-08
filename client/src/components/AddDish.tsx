@@ -1,9 +1,5 @@
 import React, { FC, FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import food from "./FoodDB.json";
 const AddDish: FC = () => {
-  const navigator = useNavigate();
-  const imageUrl = "";
   const uploadPicture = (e: React.FormEvent<HTMLInputElement>) => {
     const formData = new FormData();
     const image = e.currentTarget.files![0];

@@ -6,7 +6,7 @@ import ApiErrors from "./errors";
 import { hashUserPass } from "./functions";
 import food from './Database_of_things/FoodDB copy.json'
 
-const postgreString = 'postgresql://postgres:1234@localhost:5432/postgres'
+const postgreString = 'postgresql://postgres:123@localhost:5432/postgres'
 const pool = new Pool({
     connectionString: postgreString,
 });
@@ -197,13 +197,13 @@ export async function insertUser(user: User): Promise<void> {
     client.release()
 }
 
-export async function getDish(id: number) {
+export async function getDish(id: number):Promise<Dish> {
     const client = await pool.connect();
     const query = `SELECT * FROM dishes WHERE id=$1`;
     const values = [id];
-    let dish = await client.query(query, values);
+    let dish = await client.query<Dish>(query, values);
     client.release()
-    return dish
+    return dish.rows[0];
 }
 
     // food.forEach(async (elem)=>{

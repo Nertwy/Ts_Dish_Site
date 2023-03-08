@@ -1,33 +1,37 @@
 import React, { FC, useEffect, useState } from "react";
-import { FoodAll } from "../../../interfaces/FoodsAll";
+import {Dish} from "../../../interfaces/Ingridient"
 import Card from "./Card";
+import HeartContainer from "./HeartContainer";
 
 const CardList: FC<{ func: Function | undefined }> = (prop: {
   func: Function | undefined;
 }) => {
   let [loading, setLoading] = useState(true);
-  let [cards, SetCards] = useState<FoodAll[]>([]);
+  let [cards, SetCards] = useState<Dish[]>([]);
 
   const fetchCards = async () => {
-    let newCards: FoodAll[] = [];
+    let newCards: Dish[] = [];
     for (let i = cards.length; i < cards.length + 30; i++) {
       newCards.push(await fetchCard(i));
     }
     SetCards([...cards, ...newCards]);
     setLoading(false);
   };
-  const fetchCard = async (id: number): Promise<FoodAll> => {
+  const fetchCard = async (id: number): Promise<Dish> => {
     let responce = await fetch(`http://localhost:8000/data/?id=${id}`);
-    let data:FoodAll = await responce.json();
-    let cardInfo: FoodAll = {
+    let data:Dish = await responce.json();
+    let cardInfo: Dish = {
       id: id,
       name: data.name,
       cuisine: data.cuisine,
       url: data.url,
-      Ingridiences: data.Ingridiences,
+      ingredients: data.ingredients,
       slug: data.slug,
-      transport: prop.func
+      recipes: data.recipes,
+      transport: prop.func,
     };
+    // console.log(data);
+    
     return cardInfo;
   };
   useEffect(() => {
@@ -43,7 +47,8 @@ const CardList: FC<{ func: Function | undefined }> = (prop: {
           <div className=' bg-slate-100 grid auto-cols-fr   xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 '>
             {cards.map((elem, index) => {
               // console.log(cards.length);
-              return <Card key={index} {...elem}></Card>;
+              return <div><Card key={index} {...elem}></Card>
+              </div>;
             })}
           </div>
           <div className='text-center self-center Аbg-slate-100'>

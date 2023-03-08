@@ -1,4 +1,4 @@
-interface Ingredient {
+export interface Ingredient {
   amount: number;
   id: number;
   name: string;
@@ -12,12 +12,13 @@ interface Recipe {
 
 export interface Dish {
   name: string;
-  id?: number;
+  id: number;
   cuisine: string;
   slug: string;
   url: string;
   ingredients: Ingredient[];
-  recipes: Recipe;
+  recipes?: Recipe;
+  transport?: Function
 }
 
 class DishClass implements Dish {

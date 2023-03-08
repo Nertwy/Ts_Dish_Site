@@ -15,9 +15,9 @@ const Register: React.FC<{ showLogin: Function }> = (prop) => {
     name: "",
     password: "",
     email: "",
-    // confirm: "",
-    admin: false,
-    role: Role.User
+    id:-1,
+    role: Role.User,
+    confirmed:false
   });
 
   function handleChange(event: React.FormEvent<HTMLInputElement>) {
@@ -147,10 +147,11 @@ export { Register };
 const Login: React.FC<{ showLogin: Function }> = (props) => {
   const navigator = useNavigate();
   const [title, setTitle] = useState<User>({
+    id:-1,
     name: "",
     password: "",
-    admin: false,
-    role: Role.User
+    role: Role.User,
+    confirmed:false
   });
 
   function handleChange(event: React.FormEvent<HTMLInputElement>) {

@@ -1,28 +1,28 @@
 import React, { FC, useEffect, useState } from "react";
-import { FoodAll, Ingredient } from "../../../interfaces/FoodsAll";
+import { useNavigate } from "react-router-dom";
+import { Dish, Ingredient } from "../../../interfaces/Ingridient";
 import Card from "./Card";
-import Ingridiences from "./FoodDB.json";
+import Ingridients from "./Ingridients";
 import StickyNav from "./StickyNav";
-
-const DishPage: FC<FoodAll> = (props) => {
+const DishPage: FC<{ dish: Dish }> = (props) => {
   const [ingredient, setIngredient] = useState<Ingredient[]>(
-    props.Ingridiences
+    props.dish.ingredients
   );
-
-  const [allFood, setAllFood] = useState<FoodAll>({
-    cuisine: props.cuisine,
-    id: props.id,
-    url: props.url,
-    slug: props.slug,
-    Ingridiences: props.Ingridiences,
-    name: props.name
+  const [allFood, setAllFood] = useState<Dish>({
+    cuisine: props.dish.cuisine,
+    id: props.dish.id,
+    url: props.dish.url,
+    slug: props.dish.slug,
+    ingredients: props.dish.ingredients,
+    name: props.dish.name,
+    recipes: props.dish.recipes,
   });
   useEffect(() => {
     // console.log(allFood.id);
-    
-    if (!props.Ingridiences.length) {
+
+    if (!props.dish.ingredients.length) {
       let res: Ingredient[] = JSON.parse(localStorage.getItem("ing")!);
-      let food: FoodAll = JSON.parse(localStorage.getItem("food")!);
+      let food: Dish = JSON.parse(localStorage.getItem("food")!);
       setIngredient(res);
       setAllFood(food);
     } else {
@@ -37,10 +37,10 @@ const DishPage: FC<FoodAll> = (props) => {
     <>
       <StickyNav></StickyNav>
       <div className='w-screen flex items-center flex-col bg-gray-200 '>
-        <Card {...allFood} transport={() => {}} />
+        <Card {...allFood} transport={() => { }} />
         <h3 className='text-xl font-semibold'>Ингридиенты</h3>
         <div className='mb-3 text flex-col font-serif pb-6 lg:w-1/3 md:w-2/4 sm:w-3/5'>
-          {ingredient.map((e,i) => (
+          {ingredient.map((e, i) => (
             <div className='flex justify-between' key={i}>
               <div className='float-left'>
                 {e.amount === 0 ? null : e.amount} {e.measureUnit}
@@ -54,11 +54,13 @@ const DishPage: FC<FoodAll> = (props) => {
           <ol
             className='list-decimal pl-7 space-y-3 font-mono text-lg'
             type='1'>
-            {Ingridiences[allFood.id].recipes.step.map((elem, index) => (
-              <li key={index} className='list-decimal'>
-                {elem}
-              </li>
-            ))}
+            {
+              allFood.recipes?.step.map((elem, index) => (
+                <li key={index} className='list-decimal'>
+                  {elem}
+                </li>
+              ))
+            }
           </ol>
         </div>
       </div>

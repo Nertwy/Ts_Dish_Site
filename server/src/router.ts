@@ -9,7 +9,7 @@ import { verifyTokenBearer } from "./token";
 import multer from "multer";
 import ApiErrors from "./errors";
 import RouteLogic from "./RouteLogic";
-import { checkIfLoginCorrect } from "./postgre";
+import { checkIfLoginCorrect, getDish } from "./postgre";
 const router = Router();
 let storageConfig = multer.diskStorage({
   destination: (req, res, cb) => {
@@ -37,7 +37,7 @@ const upload = multer({
   }
 });
 router.use(cookieParser());
-router.post("/register", emailValidatorMiddleware,verifyEmailExist, RouteLogic.Register);
+router.post("/register", emailValidatorMiddleware, verifyEmailExist, RouteLogic.Register);
 router.post("/login", checkIfLoginCorrect, RouteLogic.Login);
 router.post(
   "/addDish",
@@ -50,14 +50,16 @@ router.get("/refresh", RouteLogic.Refresh);
 router.post("/logout", RouteLogic.Logout);
 router.get("/getDB", verifyTokenBearer, RouteLogic.PostFood);
 router.get("/dish", RouteLogic.getDish)
-// router.get("/data", (req: Request, res: Response) => {
-//   try {
-//     let id = Number(req.query.id);
-//     res.send(jsonData[id]);
-//   } catch (error) {
-//     res.status(400);
-//   }
-//   res.end();
-// });
+router.get("/data", async (req: Request, res: Response) => {
+  try {
+    let id = Number(req.query.id);
+    let dish = await getDish(id)
+    res.json(dish);
+  } catch (error) {
+    res.status(400);
+  } finally {
+    res.end();
+  }
+});
 router.get("/checkAccessToken", RouteLogic.Verify);
 export default router;
