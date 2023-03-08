@@ -50,9 +50,13 @@ router.get("/refresh", RouteLogic.Refresh);
 router.post("/logout", RouteLogic.Logout);
 router.get("/getDB", verifyTokenBearer, RouteLogic.PostFood);
 router.get("/dish", RouteLogic.getDish)
+// router.get("/test",async(req,res)=>{
+//   let id:number = Number(req.query.id)
+//   res.json(await getDish(id)).end()
+// })
 router.get("/data", async (req: Request, res: Response) => {
   try {
-    let id = Number(req.query.id);
+    let id:number = Number(req.query.id);
     let dish = await getDish(id)
     res.json(dish);
   } catch (error) {

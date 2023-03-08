@@ -6,7 +6,7 @@ import ApiErrors from "./errors";
 
 export const createAccessToken = (user: User): string => {
   const token = sign(
-    { name: user.name, role: user.role},
+    { name: user.name, role: user.role, email: user.email },
     process.env.ACCESSSECRET as string,
     {
       expiresIn: "15s"
@@ -19,6 +19,7 @@ export const createRefreshToken = (user: User): string => {
     {
       name: user.name,
       role: user.role,
+      email: user.email,
       tokenVersion: user.tokens?.tokenVersion
     },
     process.env.REFRESHSECRET as string,

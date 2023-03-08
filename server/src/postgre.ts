@@ -6,13 +6,40 @@ import ApiErrors from "./errors";
 import { hashUserPass } from "./functions";
 import food from './Database_of_things/FoodDB copy.json'
 
+interface CustomRequest extends Request {
+    data?: any; // Define the 'data' property as optional and of type 'any'
+}
+
 const postgreString = 'postgresql://postgres:123@localhost:5432/postgres'
 const pool = new Pool({
     connectionString: postgreString,
 });
 
 
+export async function createUserTable(): Promise<void> {
+    const client = await pool.connect();
 
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        password TEXT NOT NULL,
+        email TEXT,
+        confirmed BOOLEAN DEFAULT FALSE,
+        tokens JSONB,
+        role TEXT
+      );
+    `;
+
+    try {
+        await client.query(createTableQuery);
+        console.log('Table "users" created successfully.');
+    } catch (err) {
+        console.error('Error creating table "users":', err);
+    } finally {
+        client.release();
+    }
+}
 async function insertDish(dish: Dish): Promise<void> {
     const client = await pool.connect();
 
@@ -20,7 +47,7 @@ async function insertDish(dish: Dish): Promise<void> {
         await client.query('BEGIN');
 
         const queryText = 'INSERT INTO dishes (name,  cuisine, slug, url, ingredients, recipes) VALUES ($1, $2, $3, $4, $5, $6)';
-        const values = [dish.name,  dish.cuisine, dish.slug, dish.url, JSON.stringify(dish.ingredients), JSON.stringify(dish.recipes)];
+        const values = [dish.name, dish.cuisine, dish.slug, dish.url, JSON.stringify(dish.ingredients), JSON.stringify(dish.recipes)];
 
         await client.query(queryText, values);
 
@@ -34,7 +61,11 @@ async function insertDish(dish: Dish): Promise<void> {
 }
 
 async function createDishTable(): Promise<void> {
-    const query = `
+    const checkQuery = `
+      SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'dishes';
+    `;
+
+    const createQuery = `
       CREATE TABLE IF NOT EXISTS dishes (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
@@ -48,8 +79,26 @@ async function createDishTable(): Promise<void> {
 
     try {
         const client = await pool.connect();
-        await client.query(query);
-        console.log('Dish table created successfully');
+        const { rows } = await client.query(checkQuery);
+        if (rows[0].count === '0') {
+            await client.query(createQuery);
+            console.log('Dish table created successfully');
+            // food.forEach(async (elem)=>{
+            //     let data:Dish = {
+            //         cuisine:elem.cuisine,
+            //         ingredients:elem.Ingridiences,
+            //         name:elem.name,
+            //         recipes:elem.recipes,
+            //         slug:elem.slug,
+            //         url:elem.url
+            //     };
+            //     await insertDish(data)
+            // })
+            // await client.query(insertQuery);
+            // console.log('Example dish added to the table');
+        } else {
+            console.log('Dish table already exists and has data');
+        }
         client.release();
     } catch (error) {
         console.error('Error creating dish table: ', error);
@@ -108,7 +157,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 }
 
 export async function checkIfLoginCorrect(
-    req: Request,
+    req: CustomRequest,
     res: Response,
     next: NextFunction,
 
@@ -120,10 +169,12 @@ export async function checkIfLoginCorrect(
     WHERE email = $1 AND  password = $2;`
     const tokenValues = [user.email, user.password]
     try {
+
         const result = await pool.query(query, tokenValues)
 
         if (result.rows.length <= 0)
             next(ApiErrors.AlreadyExists("No user found"))
+        req.body = result.rows[0]
         next()
     } catch (error) {
         console.error("Error couldnt check the login!");
@@ -131,10 +182,32 @@ export async function checkIfLoginCorrect(
 
     }
 }
+export async function createRefreshTokenTable(): Promise<void> {
+    const client = await pool.connect()
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS "RefreshToken" (
+        id SERIAL PRIMARY KEY,
+        Name TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      );
+    `;
+
+    try {
+        await client.query(createTableQuery);
+        console.log('Table "RefreshToken" created successfully.');
+    } catch (err) {
+        console.error('Error creating table "RefreshToken":', err);
+    } finally {
+        client.release();
+    }
+}
 export async function storeRefreshToken(user: User, token: string): Promise<void> {
 
     const tokenValues = [token, user.id];
-    const tokenQuery = `INSERT INTO "RefreshToken" ("Name",user_id) VALUES ($1, $2)`;
+    console.log("USER ID = ", user.id);
+
+    const tokenQuery = `INSERT INTO "RefreshToken" ("name",user_id) VALUES ($1, $2)`;
     try {
         await pool.query(tokenQuery, tokenValues);
     } catch (error) {
@@ -151,6 +224,27 @@ export async function deleteRefreshToken(token: string): Promise<void> {
     } catch (error) {
         console.error('Error deleting token:', error);
         throw error;
+    }
+}
+export async function createAccessTokenTable(): Promise<void> {
+    const client = await pool.connect();
+
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS "AccessToken" (
+        id SERIAL PRIMARY KEY,
+        Name TEXT NOT NULL,
+        user_id INTEGER NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      );
+    `;
+
+    try {
+        await client.query(createTableQuery);
+        console.log('Table "AccessToken" created successfully.');
+    } catch (err) {
+        console.error('Error creating table "AccessToken":', err);
+    } finally {
+        client.release();
     }
 }
 async function storeAccessToken(user: User, token: string) {
@@ -197,7 +291,7 @@ export async function insertUser(user: User): Promise<void> {
     client.release()
 }
 
-export async function getDish(id: number):Promise<Dish> {
+export async function getDish(id: number): Promise<Dish> {
     const client = await pool.connect();
     const query = `SELECT * FROM dishes WHERE id=$1`;
     const values = [id];
@@ -206,15 +300,7 @@ export async function getDish(id: number):Promise<Dish> {
     return dish.rows[0];
 }
 
-    // food.forEach(async (elem)=>{
-    //     let data:Dish = {
-    //         cuisine:elem.cuisine,
-    //         ingredients:elem.Ingridiences,
-    //         name:elem.name,
-    //         recipes:elem.recipes,
-    //         slug:elem.slug,
-    //         url:elem.url
-    //     };
-    //     await insertDish(data)
-    // })    
-
+createDishTable()
+createUserTable()
+createRefreshTokenTable()
+createAccessTokenTable()

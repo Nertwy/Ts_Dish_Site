@@ -11,14 +11,14 @@ const CardList: FC<{ func: Function | undefined }> = (prop: {
 
   const fetchCards = async () => {
     let newCards: Dish[] = [];
-    for (let i = cards.length; i < cards.length + 30; i++) {
+    for (let i = cards.length+1; i < cards.length + 30; i++) {
       newCards.push(await fetchCard(i));
     }
     SetCards([...cards, ...newCards]);
     setLoading(false);
   };
   const fetchCard = async (id: number): Promise<Dish> => {
-    let responce = await fetch(`http://localhost:8000/data/?id=${id}`);
+    let responce = await fetch(`http://localhost:8000/data?id=${id}`);
     let data:Dish = await responce.json();
     let cardInfo: Dish = {
       id: id,
@@ -30,8 +30,6 @@ const CardList: FC<{ func: Function | undefined }> = (prop: {
       recipes: data.recipes,
       transport: prop.func,
     };
-    // console.log(data);
-    
     return cardInfo;
   };
   useEffect(() => {

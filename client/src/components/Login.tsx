@@ -151,7 +151,8 @@ const Login: React.FC<{ showLogin: Function }> = (props) => {
     name: "",
     password: "",
     role: Role.User,
-    confirmed:false
+    confirmed:false,
+    email:""
   });
 
   function handleChange(event: React.FormEvent<HTMLInputElement>) {
@@ -198,15 +199,15 @@ const Login: React.FC<{ showLogin: Function }> = (props) => {
         <form action='submit' onSubmit={(e) => PostLogin(e)}>
           <div>
             <label htmlFor='email' className='block'>
-              Name
+              Email
             </label>
             <input
-              name='name'
+              name='email'
               type='text'
               placeholder='UserName'
               className='w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600'
               required={true}
-              value={title.name}
+              value={title.email}
               onChange={handleChange}
             />
           </div>

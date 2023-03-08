@@ -35,6 +35,6 @@ app.get("/", (req, res) => {
   // res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-const server= app.listen(port,  () => {
+app.listen(port,  () => {
   console.log(`Listening at port ${port}`);
 });
