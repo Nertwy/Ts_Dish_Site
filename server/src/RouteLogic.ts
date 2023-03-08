@@ -1,4 +1,4 @@
-import { FoodFromClient } from "./interface/PostFoodClient";
+// import { FoodFromClient } from "./interface/PostFoodClient";
 import {
   createAccessToken,
   createRefreshToken,
@@ -14,7 +14,8 @@ import jwt, { TokenExpiredError } from "jsonwebtoken";
 import ApiErrors from "./errors";
 import multer from "multer";
 import { checkPropertiesNull, fileIsImage } from "./functions";
-import { insertUser, checkEmailExists, storeRefreshToken, getUserByEmail, getDish } from "./postgre";
+import { insertUser, checkEmailExists, storeRefreshToken, getUserByEmail, getDish, deleteRefreshToken } from "./postgre";
+import { Dish } from "../../interfaces/Ingridient";
 
 const upload = multer({ dest: "uploads/" });
 
@@ -48,7 +49,7 @@ class RouteLogic {
   Logout(req: Request, res: Response, next: Function) {
     try {
       req.cookies.jrt;
-      
+
       res.clearCookie("jrt");
       res.end();
     } catch (error) {
@@ -71,6 +72,7 @@ class RouteLogic {
         return next(ApiErrors.BadRequest("User have wrong refresh Token!", []));
       //UPDATE REFRESH TOKEN IN DB THEN SEND NEW TO USER;
       const newRT = createRefreshToken(user);
+      await deleteRefreshToken(token)
       await storeRefreshToken(user, newRT)
       // writeRefreshTokenToDB(await getUserIdByName(user.name), newRT);
       return res
@@ -94,11 +96,13 @@ class RouteLogic {
   }
   Verify(req: Request, res: Response, next: Function) { }
   async AddDish(req: Request, res: Response, next: Function) {
-    let dish: FoodFromClient = {
-      name: req.body?.name,
-      steps: req.body?.steps,
-      cuisine: req.body?.cuisine,
-      ingredients: req.body?.ing
+    let dish: Dish = {
+      name: "",
+      id: 0,
+      cuisine: "",
+      slug: "",
+      url: "",
+      ingredients: []
     };
     if (checkPropertiesNull(dish))
       return next(ApiErrors.BadRequest("Not all fields have been filed"));

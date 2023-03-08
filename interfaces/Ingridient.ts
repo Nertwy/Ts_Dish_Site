@@ -5,7 +5,7 @@ export interface Ingredient {
   measureUnit: string;
 }
 
-interface Recipe {
+export interface Recipe {
   id: number[];
   step: (string | null)[];
 }
