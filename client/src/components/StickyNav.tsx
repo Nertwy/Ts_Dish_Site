@@ -22,20 +22,21 @@ const ToggleSwitch: FC = () => {
     </label>
   );
 };
-const StickyNav: FC<{ setFood?: Function}> = (props: {
+const StickyNav: FC<{ setFood?: Function }> = (props: {
   setFood?: Function;
 }) => {
   const randNum = async (callback: Function) => {
     let id = Math.floor(100 * Math.random());
     let responce = await fetch(`http://localhost:8000/data/?id=${id}`);
-    let data:Dish = await responce.json();
+    let data: Dish = await responce.json();
     let cardInfo: Dish = {
       id: id,
       name: data.name,
       cuisine: data.cuisine,
       url: data.url,
       ingredients: data.ingredients,
-      slug: data.slug
+      slug: data.slug,
+      recipes: data.recipes
     };
     callback(cardInfo);
     // console.log(cardInfo);

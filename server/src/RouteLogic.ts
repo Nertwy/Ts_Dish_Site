@@ -2,15 +2,11 @@
 import {
   createAccessToken,
   createRefreshToken,
-  sendAccessToken,
   sendRefreshToken,
-  verifyAccessToken,
   verifyRefreshToken
 } from "./token";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../../interfaces/user";
-
-import jwt, { TokenExpiredError } from "jsonwebtoken";
 import ApiErrors from "./errors";
 import multer from "multer";
 import { checkPropertiesNull, fileIsImage } from "./functions";
