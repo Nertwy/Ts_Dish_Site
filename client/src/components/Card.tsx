@@ -14,10 +14,10 @@ const Card: FC<Dish> = (props) => {
     <div className="card-show-anim">
       <div
         className='flex flex-col w-auto p-7 rounded-md  transition duration-200 shadow hover:shadow-md m-3 cursor-pointer hover:scale-110 hover:z-10'
-        //Cannot invoke an object which is possibly 'undefined' in TS without ?.
+      //Cannot invoke an object which is possibly 'undefined' in TS without ?.
       >
         <div className='h-96 overflow-hidden'>
-          
+
           <img
             src={props.url}
             alt='Meal'
@@ -35,8 +35,8 @@ const Card: FC<Dish> = (props) => {
           <p>{props.cuisine}</p>
         </div>
         <div className="">
-      <HeartButton isLiked={false} handleClick={()=>{}}/>
-      </div>
+          <HeartButton isLiked={false} handleClick={() => { }} />
+        </div>
       </div>
     </div>
   );

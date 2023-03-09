@@ -19,13 +19,13 @@ const Header: FC<{ setID?: Function }> = (props: { setID?: Function }) => {
   );
 };
 
-const Home: FC<{ Dish: Dish, setID?: Function }> = (props: { Dish: Dish, setID?: Function}) => {
+const Home: FC<{ Dish: Dish, setID?: Function }> = (props: { Dish: Dish, setID?: Function }) => {
 
   const navigate = useNavigate();
-  const randNum = async (callback:Function) => {
+  const randNum = async (callback: Function) => {
     let id = Math.floor(100 * Math.random());
     let responce = await fetch(`http://localhost:8000/data/?id=${id}`);
-    let data:Dish = await responce.json();
+    let data: Dish = await responce.json();
     let cardInfo: Dish = {
       id: id,
       recipes: data.recipes,
@@ -34,7 +34,7 @@ const Home: FC<{ Dish: Dish, setID?: Function }> = (props: { Dish: Dish, setID?:
       url: data.url,
       ingredients: data.ingredients,
       slug: data.slug,
-      transport:props.Dish.transport
+      transport: props.Dish.transport
     };
     callback(cardInfo)
     navigate("/dish");
@@ -43,7 +43,7 @@ const Home: FC<{ Dish: Dish, setID?: Function }> = (props: { Dish: Dish, setID?:
   const handleRefresh = async () => {
     let a = await fetch("http://localhost:8000/refresh_token", {
       method: "POST",
-      credentials: "include"
+      credentials: 'include'
     });
     let b = await a.json();
     console.log(b);

@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import {Dish} from "../../../interfaces/Ingridient"
+import { Dish } from "../../../interfaces/Ingridient"
 import Card from "./Card";
 import HeartContainer from "./HeartContainer";
 
@@ -11,7 +11,7 @@ const CardList: FC<{ func: Function | undefined }> = (prop: {
 
   const fetchCards = async () => {
     let newCards: Dish[] = [];
-    for (let i = cards.length+1; i < cards.length + 30; i++) {
+    for (let i = cards.length + 1; i < cards.length + 30; i++) {
       newCards.push(await fetchCard(i));
     }
     SetCards([...cards, ...newCards]);
@@ -19,7 +19,7 @@ const CardList: FC<{ func: Function | undefined }> = (prop: {
   };
   const fetchCard = async (id: number): Promise<Dish> => {
     let responce = await fetch(`http://localhost:8000/data?id=${id}`);
-    let data:Dish = await responce.json();
+    let data: Dish = await responce.json();
     let cardInfo: Dish = {
       id: id,
       name: data.name,

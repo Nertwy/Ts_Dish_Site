@@ -8,13 +8,13 @@ const AddDish: FC = () => {
       body: formData,
       method: "POST"
     };
-    
+
     fetch("URL to...", options);
   };
   return (
     <>
       <div>
-        <form encType='multipart/form-data' method='post' onSubmit={() => {}}>
+        <form encType='multipart/form-data' method='post' onSubmit={() => { }}>
           <input
             type={"file"}
             accept={"image/png, image/gif, image/jpeg"}></input>

@@ -1,18 +1,12 @@
 import { FC, useContext, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes, useNavigate, useRoutes } from "react-router-dom";
 import { Dish } from "../../../interfaces/Ingridient";
+import Counter from "../features/counter/Counter";
 import AddDish from "./AddDish";
 import DishPage from "./DishPage";
 import Home from "./Home";
 import Login from "./Login";
 import { TestPage } from "./TESTPAGE";
-import { configureStore } from "@reduxjs/toolkit";
-
-const store = configureStore({
-  reducer:{
-    
-  }
-})
 
 const Wrapper: FC = () => {
   const handleCardData = (food: Dish) => {
@@ -37,6 +31,7 @@ const Wrapper: FC = () => {
     //Pass a state hook to Home page and insert to it values of a card pressed and then pass it to DIsh page
     <BrowserRouter basename='/'>
       <Routes>
+        <Route path="/test" element={<Counter></Counter>}/>
         <Route path='/' element={<Home Dish={Dish} />}></Route>
         <Route path='/dish' element={<DishPage dish={cardData} />}></Route>
         <Route path='/Login' element={<Login />}></Route>
