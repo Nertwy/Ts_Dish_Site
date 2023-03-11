@@ -3,25 +3,43 @@ import {
   createAccessToken,
   createRefreshToken,
   sendRefreshToken,
-  verifyRefreshToken
+  verifyRefreshToken,
 } from "./token";
 import { NextFunction, Request, Response } from "express";
 import { User } from "../../interfaces/user";
 import ApiErrors from "./errors";
 import multer from "multer";
 import { checkPropertiesNull, fileIsImage } from "./functions";
-import { insertUser, checkEmailExists, storeRefreshToken, getUserByEmail, getDish, deleteRefreshToken } from "./postgre";
+import {
+  insertUser,
+  checkEmailExists,
+  storeRefreshToken,
+  getUserByEmail,
+  getDish,
+  deleteRefreshToken,
+  insertLike,
+} from "./postgre";
 import { Dish } from "../../interfaces/Ingridient";
 
 const upload = multer({ dest: "uploads/" });
 
 class RouteLogic {
+  async Like(req: Request, res: Response, next: Function) {
+    try {
+      let {dish_id,user_id} = req.body;
+      await insertLike(dish_id,user_id)
+    } catch (err) {
+      console.error(err);
+    } finally {
+      res.end();
+    }
+  }
   async Login(req: Request, res: Response, next: Function) {
     try {
-      let userData: User = req.body
+      let userData: User = req.body;
       const refreshToken = createRefreshToken(userData);
       const accessToken = createAccessToken(userData);
-      await storeRefreshToken(userData, refreshToken)
+      await storeRefreshToken(userData, refreshToken);
 
       sendRefreshToken(res, refreshToken);
       res.send({ token: accessToken, success: true });
@@ -68,13 +86,13 @@ class RouteLogic {
         return next(ApiErrors.BadRequest("User have wrong refresh Token!", []));
       //UPDATE REFRESH TOKEN IN DB THEN SEND NEW TO USER;
       const newRT = createRefreshToken(user);
-      await deleteRefreshToken(token)
-      await storeRefreshToken(user, newRT)
+      await deleteRefreshToken(token);
+      await storeRefreshToken(user, newRT);
       // writeRefreshTokenToDB(await getUserIdByName(user.name), newRT);
       return res
         .status(200)
         .cookie("jrt", newRT, {
-          httpOnly: true
+          httpOnly: true,
         })
         .send({ ok: true, token: createAccessToken(user) });
     } catch (error) {
@@ -86,11 +104,7 @@ class RouteLogic {
     res.json(res.locals.body);
     res.end();
   }
-  setLikes(req: Request, res: Response, next: Function) {
-    let imageId = req.body.id;
-    let like = req.body.like;
-  }
-  Verify(req: Request, res: Response, next: Function) { }
+  Verify(req: Request, res: Response, next: Function) {}
   async AddDish(req: Request, res: Response, next: Function) {
     let dish: Dish = {
       name: "",
@@ -98,7 +112,7 @@ class RouteLogic {
       cuisine: "",
       slug: "",
       url: "",
-      ingredients: []
+      ingredients: [],
     };
     if (checkPropertiesNull(dish))
       return next(ApiErrors.BadRequest("Not all fields have been filed"));
@@ -107,8 +121,8 @@ class RouteLogic {
   }
   async getDish(req: Request, res: Response, next: NextFunction) {
     let data = await getDish(req.body.id);
-    res.json(data)
-    next()
+    res.json(data);
+    next();
   }
 }
 

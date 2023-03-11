@@ -4,7 +4,7 @@ import { Dish } from "../../../interfaces/Ingridient";
 import Counter from "../features/counter/Counter";
 import AddDish from "./AddDish";
 import DishPage from "./DishPage";
-import Home from "./Home";
+import Home from "./HomePage";
 import Login from "./Login";
 import { TestPage } from "./TESTPAGE";
 
@@ -26,14 +26,16 @@ const Wrapper: FC = () => {
   useEffect(() => {
     // console.log(cardData);
   }, [cardData]);
-
+  const handleSetFood = (food:Dish)=>{
+    SetCardData(food)
+  }
   return (
     //Pass a state hook to Home page and insert to it values of a card pressed and then pass it to DIsh page
     <BrowserRouter basename='/'>
       <Routes>
         <Route path="/test" element={<Counter></Counter>}/>
-        <Route path='/' element={<Home Dish={Dish} />}></Route>
-        <Route path='/dish' element={<DishPage dish={cardData} />}></Route>
+        <Route path='/' element={<Home Dish={cardData} />}></Route>
+        <Route path='/dish' element={<DishPage dish={cardData}/>}></Route>
         <Route path='/Login' element={<Login />}></Route>
         <Route path='/Logged' element={<TestPage />}></Route>
         <Route path='/AddDish' element={<AddDish />}></Route>

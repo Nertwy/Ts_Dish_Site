@@ -44,7 +44,7 @@ router.post(
   /*verifyAuth,*/ RouteLogic.AddDish,
   upload.single("image")
 );
-
+router.get("/like",verifyTokenBearer,RouteLogic.Like);
 router.get("/refresh", RouteLogic.Refresh);
 
 router.post("/logout", RouteLogic.Logout);

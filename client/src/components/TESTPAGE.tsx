@@ -6,16 +6,19 @@ export const TestPage: FC = () => {
     let resu = await fetch("http://localhost:8000/login", {
       method: "GET",
       headers: {
-        Authorization: `${localStorage.getItem("JAT")}`
-      }
+        Authorization: `${localStorage.getItem("JAT")}`,
+      },
     });
-    // let data = await resu.json();
-    // localStorage.setItem("JAT",data.token) 
-    // console.log(data.token);
-
   };
   useEffect(() => {
     sendJAT();
   }, []);
-  return (<><div>YOU ARE LOGGED IN!!! <IngredientForm onSubmit={()=>{}}/></div></>);
+  return (
+    <>
+      <div>
+        YOU ARE LOGGED IN!!! <IngredientForm onSubmit={() => {}} />
+        <CuisineSearch />
+      </div>
+    </>
+  );
 };

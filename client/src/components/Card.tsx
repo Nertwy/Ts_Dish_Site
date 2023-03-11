@@ -4,7 +4,7 @@ import { Dish } from "../../../interfaces/Ingridient";
 import HeartButton from "./HeartContainer";
 const Card: FC<Dish> = (props) => {
   const navigate = useNavigate();
-
+  
   const style =
     "transition duration-200 shadow hover:shadow-md w-1/6 h-80 overflow-hidden m-4 float-left ml-10 cursor-pointer card-show-anim sm:w-auto sm:justify-center sm:left-1/2";
   useEffect(() => {
@@ -23,6 +23,7 @@ const Card: FC<Dish> = (props) => {
             alt='Meal'
             className='h-full w-full'
             onClick={() => {
+              localStorage.setItem("food",JSON.stringify(props))
               props.transport?.(props);
               navigate("/dish");
             }}
