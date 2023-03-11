@@ -47,6 +47,7 @@ const Register: React.FC<{ showLogin: Function }> = (prop) => {
       // console.log("SOMETHING WRONG");
       setErrorResulter(true);
     }
+    
   }
   return (
     <div

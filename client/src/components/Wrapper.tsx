@@ -3,8 +3,8 @@ import { BrowserRouter, Route, Routes, useNavigate, useRoutes } from "react-rout
 import { Dish } from "../../../interfaces/Ingridient";
 import Counter from "../features/counter/Counter";
 import AddDish from "./AddDish";
-import DishPage from "./DishPage";
-import Home from "./HomePage";
+import DishPage from "./pages/DishPage";
+import Home from "./pages/HomePage";
 import Login from "./Login";
 import { TestPage } from "./TESTPAGE";
 

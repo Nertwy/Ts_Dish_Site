@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import { Dish } from "../../../interfaces/Ingridient";
+import { Dish } from "../../../../interfaces/Ingridient";
 import Card from "./Card";
 import HeartContainer from "./HeartContainer";
 

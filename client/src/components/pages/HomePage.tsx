@@ -1,9 +1,9 @@
 import React, { FC, StrictMode, useEffect, useState } from "react";
-import CardList from "./CardList";
-import Footer from "./Footer";
-import StickyNav from "./StickyNav";
-import img from "../images/Logo.png";
-import { Dish } from "../../../interfaces/Ingridient";
+import CardList from "../Cards Logic/CardList";
+import Footer from "../Footer";
+import StickyNav from "../StickyNav";
+import img from "../../images/Logo.png";
+import { Dish } from "../../../../interfaces/Ingridient";
 import { useNavigate } from "react-router-dom";
 //Dark\Light themes
 

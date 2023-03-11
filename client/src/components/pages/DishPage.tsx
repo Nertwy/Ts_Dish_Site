@@ -1,9 +1,9 @@
 import React, { FC, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Dish, Ingredient } from "../../../interfaces/Ingridient";
-import Card from "./Card";
-import Ingridients from "./Ingridients";
-import StickyNav from "./StickyNav";
+import { Dish, Ingredient } from "../../../../interfaces/Ingridient";
+import Card from "../Cards Logic/Card";
+import Ingridients from "../Cards Logic/Ingridients";
+import StickyNav from "../StickyNav";
 const DishPage: FC<{ dish: Dish }> = (props) => {
   const foodFromLS: Dish = JSON.parse(localStorage.getItem("food")!);
   const [allFood, setAllFood] = useState<Dish>({

@@ -311,7 +311,6 @@ async function updateAccessToken(userId: number, token: string): Promise<void> {
     client.release();
   }
 }
-
 export async function insertUser(user: User): Promise<void> {
   const client = await pool.connect();
   const query = `

@@ -6,13 +6,21 @@ interface Props {
   className?: string;
 }
 
-const HeartButton: FC<Props> = ({ handleClick, className }) => {
+const HeartButton: FC<{id:number,handleClick:Function, isLiked:boolean}> = (props) => {
   const [isLiked, setIsLiked] = useState(false);
+  const handleLike = ()=>{
+    if(!localStorage.getItem("JAT")){
+     //handle if no Access token provided so basicly show message that you should register
+    return
+    }
+    like()
+    
+  }
   const like = () => {
     setIsLiked(!isLiked)
   }
   return (
-    <button className="absolute right-3 bottom-0" onClick={like} >
+    <button className="absolute right-3 bottom-0" onClick={()=>props.handleClick()} >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className={`w-6 h-auto fill-current ${isLiked ? "text-red-400" : "text-gray-400"

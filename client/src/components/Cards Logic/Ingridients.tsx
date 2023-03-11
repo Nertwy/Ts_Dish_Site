@@ -1,5 +1,5 @@
 import { FC, useEffect } from "react";
-import { Dish } from "../../../interfaces/Ingridient";
+import { Dish } from "../../../../interfaces/Ingridient";
 import Card from "./Card";
 //nn in eda ru react props
 const Ingridients: FC<Dish> = (props: Dish) => {

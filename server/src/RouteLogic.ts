@@ -26,8 +26,8 @@ const upload = multer({ dest: "uploads/" });
 class RouteLogic {
   async Like(req: Request, res: Response, next: Function) {
     try {
-      let {dish_id,user_id} = req.body;
-      await insertLike(dish_id,user_id)
+      let { dish_id, user_id } = req.body;
+      await insertLike(dish_id, user_id);
     } catch (err) {
       console.error(err);
     } finally {
@@ -43,6 +43,11 @@ class RouteLogic {
 
       sendRefreshToken(res, refreshToken);
       res.send({ token: accessToken, success: true });
+      //Setting the Authorization header in the response is not a common use case, 
+      //as the Authorization header is typically used in the request sent by the client to the server to authenticate the
+      // client with the server. However, there may be situations where you want to send an access token to the client in 
+      //the response headers for use in subsequent requests.
+      // res.setHeader("Authorization", `Bearer ${accessToken}`);
       return res.end();
     } catch (e) {
       next(e);
