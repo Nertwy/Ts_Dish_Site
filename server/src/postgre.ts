@@ -3,14 +3,21 @@ import { Client, Pool, QueryResult } from "pg";
 import { Dish } from "../../interfaces/Ingridient";
 import { User } from "../../interfaces/user";
 import ApiErrors from "./errors";
-import { hashUserPass } from "./functions";
 import food from "./Database_of_things/FoodDB copy.json";
+import { PrismaClient } from "@prisma/client";
 
 interface CustomRequest extends Request {
   data?: any; // Define the 'data' property as optional and of type 'any'
 }
 
 const postgreString = "postgresql://postgres:123@localhost:5432/postgres";
+//Refactore code to use Prisma fully without pg
+// const prisma = new PrismaClient()
+// prisma.dishes.create({
+//   data:{
+    
+//   }
+// })
 const pool = new Pool({
   connectionString: postgreString,
 });
@@ -39,6 +46,8 @@ export async function createUserTable(): Promise<void> {
     client.release();
   }
 }
+
+
 async function insertDish(dish: Dish): Promise<void> {
   const client = await pool.connect();
 

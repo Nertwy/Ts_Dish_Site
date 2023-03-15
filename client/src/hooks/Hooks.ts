@@ -27,9 +27,9 @@ export const useInput = (inputVal: string) => {
     let a = e.currentTarget.value;
     setValue(a);
   };
-  return { 
+  return {
     value,
-    onChange:handleChange
+    onChange: handleChange
   }
 };
 export default useInfiniteScroll;
