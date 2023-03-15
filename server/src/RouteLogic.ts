@@ -18,6 +18,8 @@ import {
   getDish,
   deleteRefreshToken,
   insertLike,
+  toggleLike,
+  getUserLikes,
 } from "./postgre";
 import { Dish } from "../../interfaces/Ingridient";
 
@@ -27,7 +29,8 @@ class RouteLogic {
   async Like(req: Request, res: Response, next: Function) {
     try {
       let { dish_id, user_id } = req.body;
-      await insertLike(dish_id, user_id);
+      // console.log(req.body);
+      await toggleLike(dish_id, user_id)
     } catch (err) {
       console.error(err);
     } finally {
@@ -40,14 +43,17 @@ class RouteLogic {
       const refreshToken = createRefreshToken(userData);
       const accessToken = createAccessToken(userData);
       await storeRefreshToken(userData, refreshToken);
-
+      const user = await getUserByEmail(userData.email!)
       sendRefreshToken(res, refreshToken);
-      res.send({ token: accessToken, success: true });
+      let userLikes = await getUserLikes(user!.id)
+      res.send({ token: accessToken, success: true, likes: userLikes });
+      // console.log(userLikes);
       //Setting the Authorization header in the response is not a common use case, 
       //as the Authorization header is typically used in the request sent by the client to the server to authenticate the
       // client with the server. However, there may be situations where you want to send an access token to the client in 
       //the response headers for use in subsequent requests.
       // res.setHeader("Authorization", `Bearer ${accessToken}`);
+
       return res.end();
     } catch (e) {
       next(e);
@@ -77,24 +83,27 @@ class RouteLogic {
   }
   async Refresh(req: Request, res: Response, next: Function) {
     try {
-      const token = req.cookies.jrt;
-      if (!token) next(ApiErrors.BadRequest("No token In cookie"));
+      const { jrt } = req.cookies
+      // console.log(req.cookies.jrt + "COOKIE TOKEN");
 
-      let payload: any = verifyRefreshToken(token);
+      if (!jrt) next(ApiErrors.BadRequest("No token In cookie"));
+
+      let payload: any = await verifyRefreshToken(jrt);
+      // console.log(payload + "PAYLOAD");
 
       if (payload === null) next(ApiErrors.BadRequest("Invalid Token"));
       // const user = await getUserByName(payload!.name);
-      const user = await getUserByEmail(payload!.email);
+      const user = await getUserByEmail(payload?.email);
       if (!user) return next(Error("No user with this name"));
 
-      if (user.tokens?.refresh !== token)
-        return next(ApiErrors.BadRequest("User have wrong refresh Token!", []));
+      // if (user.tokens?.refresh !== token)
+      //   return next(ApiErrors.BadRequest("User have wrong refresh Token!", []));
       //UPDATE REFRESH TOKEN IN DB THEN SEND NEW TO USER;
       const newRT = createRefreshToken(user);
-      await deleteRefreshToken(token);
+      await deleteRefreshToken(jrt);
       await storeRefreshToken(user, newRT);
       // writeRefreshTokenToDB(await getUserIdByName(user.name), newRT);
-      return res
+      res
         .status(200)
         .cookie("jrt", newRT, {
           httpOnly: true,
@@ -109,7 +118,7 @@ class RouteLogic {
     res.json(res.locals.body);
     res.end();
   }
-  Verify(req: Request, res: Response, next: Function) {}
+  Verify(req: Request, res: Response, next: Function) { }
   async AddDish(req: Request, res: Response, next: Function) {
     let dish: Dish = {
       name: "",

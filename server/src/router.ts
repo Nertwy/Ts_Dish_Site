@@ -10,6 +10,7 @@ import multer from "multer";
 import ApiErrors from "./errors";
 import RouteLogic from "./RouteLogic";
 import { checkIfLoginCorrect, getDish } from "./postgre";
+import { PrismaClient } from "@prisma/client";
 const router = Router();
 let storageConfig = multer.diskStorage({
   destination: (req, res, cb) => {
@@ -36,6 +37,7 @@ const upload = multer({
     callback(null, true);
   }
 });
+
 router.use(cookieParser());
 router.post("/register", emailValidatorMiddleware, verifyEmailExist, RouteLogic.Register);
 router.post("/login", checkIfLoginCorrect, RouteLogic.Login);
@@ -44,7 +46,7 @@ router.post(
   /*verifyAuth,*/ RouteLogic.AddDish,
   upload.single("image")
 );
-router.get("/like",verifyTokenBearer,RouteLogic.Like);
+router.post("/like",verifyTokenBearer,RouteLogic.Like);
 router.get("/refresh", RouteLogic.Refresh);
 
 router.post("/logout", RouteLogic.Logout);

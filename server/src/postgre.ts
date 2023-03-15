@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { Client, Pool } from "pg";
+import { Client, Pool, QueryResult } from "pg";
 import { Dish } from "../../interfaces/Ingridient";
 import { User } from "../../interfaces/user";
 import ApiErrors from "./errors";
@@ -241,7 +241,19 @@ async function createLikesTable() {
     client.release();
   }
 }
-export async function insertLike(dish_id:number,user_id:number): Promise<void> {
+export async function getUserLikes(id: number){
+  const client = await pool.connect()
+  const value = [id.toString()]
+  const query = `SELECT * FROM "DishLikes" WHERE user_id=$1`
+  try {
+    const result: QueryResult<Dish> = await pool.query(query, value)
+    return result.rows
+  } catch (error) {
+    console.error(error);
+    return null
+  }
+}
+export async function insertLike(dish_id: number, user_id: number): Promise<void> {
   const client = await pool.connect();
 
   try {
@@ -251,9 +263,62 @@ export async function insertLike(dish_id:number,user_id:number): Promise<void> {
     `;
     const values = [dish_id, user_id];
     await client.query(insertQuery, values);
-    console.log('New like inserted successfully');
+    // console.log('New like inserted successfully');
   } catch (err) {
     console.error('Error inserting like:', err);
+  } finally {
+    client.release();
+  }
+}
+export async function deleteLike(dish_id: number, user_id: number): Promise<void> {
+  const client = await pool.connect();
+
+  try {
+    const deleteQuery = `
+      DELETE FROM "DishLikes"
+      WHERE dish_id = $1 AND user_id = $2
+    `;
+    const values = [dish_id, user_id];
+    await client.query(deleteQuery, values);
+    // console.log('Like deleted successfully');
+  } catch (err) {
+    console.error('Error deleting like:', err);
+  } finally {
+    client.release();
+  }
+}
+export async function toggleLike(dishId: number, userId: number): Promise<void> {
+  const client = await pool.connect();
+
+  try {
+    const checkQuery = `
+      SELECT * FROM "DishLikes"
+      WHERE dish_id = $1 AND user_id = $2
+    `;
+    const checkValues = [dishId, userId];
+    const checkResult = await client.query(checkQuery, checkValues);
+
+    if (checkResult.rows.length > 0) {
+      // If record exists, delete it
+      const deleteQuery = `
+        DELETE FROM "DishLikes"
+        WHERE dish_id = $1 AND user_id = $2
+      `;
+      const deleteValues = [dishId, userId];
+      await client.query(deleteQuery, deleteValues);
+      // console.log('Like deleted successfully');
+    } else {
+      // If record doesn't exist, insert it
+      const insertQuery = `
+        INSERT INTO "DishLikes" (dish_id, user_id)
+        VALUES ($1, $2)
+      `;
+      const insertValues = [dishId, userId];
+      await client.query(insertQuery, insertValues);
+      // console.log('New like inserted successfully');
+    }
+  } catch (err) {
+    console.error('Error toggling like:', err);
   } finally {
     client.release();
   }

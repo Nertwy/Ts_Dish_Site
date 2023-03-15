@@ -1,7 +1,11 @@
 import React, { FC, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Router, useNavigate } from "react-router-dom";
+import { Dish } from "../../../interfaces/Ingridient";
 import { User } from "../../../interfaces/user";
 import { getAccessToken } from "../AccessToken";
+import { modifyDishLike } from "../app/CardListSlice";
+import { login } from "../app/UserSlice";
 import { useInput } from "../hooks/Hooks";
 enum Role {
   Admin = "ADMIN",
@@ -15,13 +19,13 @@ const Register: React.FC<{ showLogin: Function }> = (prop) => {
     name: "",
     password: "",
     email: "",
-    id:-1,
+    id: -1,
     role: Role.User,
-    confirmed:false
+    confirmed: false
   });
 
   function handleChange(event: React.FormEvent<HTMLInputElement>) {
-    const RegisterMiddleware = () => {};
+    const RegisterMiddleware = () => { };
     let a = event.currentTarget.value;
     let item = event.currentTarget.name;
     // console.log(event.currentTarget.value);
@@ -47,7 +51,7 @@ const Register: React.FC<{ showLogin: Function }> = (prop) => {
       // console.log("SOMETHING WRONG");
       setErrorResulter(true);
     }
-    
+
   }
   return (
     <div
@@ -144,16 +148,25 @@ const Register: React.FC<{ showLogin: Function }> = (prop) => {
 };
 
 export { Register };
-
-const Login: React.FC<{ showLogin: Function }> = (props) => {
+interface loginApi {
+  token: string,
+  success: boolean,
+  likes: {
+    id: number,
+    dish_id: number
+    user_id: number
+  }[]
+}
+const Login: FC<{ showLogin: Function }> = (props) => {
   const navigator = useNavigate();
+  const dispatch = useDispatch()
   const [title, setTitle] = useState<User>({
-    id:-1,
+    id: -1,
     name: "",
     password: "",
     role: Role.User,
-    confirmed:false,
-    email:""
+    confirmed: false,
+    email: ""
   });
 
   function handleChange(event: React.FormEvent<HTMLInputElement>) {
@@ -165,7 +178,7 @@ const Login: React.FC<{ showLogin: Function }> = (props) => {
       [item]: a
     }));
   }
-  const LoginMiddleware = () => {};
+  const LoginMiddleware = () => { };
   async function PostLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const token = getAccessToken();
@@ -182,9 +195,12 @@ const Login: React.FC<{ showLogin: Function }> = (props) => {
     });
 
     if (resul.status === 200) {
-      let data = await resul.json();
+      let data: loginApi = await resul.json();
+      data.likes.forEach((val) => dispatch(modifyDishLike(val.dish_id)))
       localStorage.setItem("JAT", data.token);
-      navigator('/Logged') 
+      dispatch(login())
+      //after posting login there should be send 
+      navigator('/')
     } else {
       console.log(resul.status);
 
@@ -207,7 +223,7 @@ const Login: React.FC<{ showLogin: Function }> = (props) => {
               type='text'
               placeholder='UserName'
               className='w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600'
-              required={true}
+              required
               value={title.email}
               onChange={handleChange}
             />
@@ -221,7 +237,7 @@ const Login: React.FC<{ showLogin: Function }> = (props) => {
               type='password'
               placeholder='Password'
               className='w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600'
-              required={true}
+              required
               value={title.password}
               onChange={handleChange}
             />

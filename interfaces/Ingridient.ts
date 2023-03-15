@@ -16,35 +16,35 @@ export interface Dish {
   cuisine: string;
   slug: string;
   url: string;
+  like?:boolean;
   ingredients: Ingredient[];
   recipes?: Recipe;
-  transport?: Function
+  transport?: Function;
 }
 
-class DishClass implements Dish {
-  name: string;
-  id: number;
-  cuisine: string;
-  slug: string;
-  url: string;
-  ingredients: Ingredient[];
-  recipes: Recipe;
-
-  constructor(
-    name: string,
-    id: number,
-    cuisine: string,
-    slug: string,
-    url: string,
-    ingredients: Ingredient[],
-    recipes: Recipe
-  ) {
-    this.name = name;
-    this.id = id;
-    this.cuisine = cuisine;
-    this.slug = slug;
-    this.url = url;
-    this.ingredients = ingredients;
-    this.recipes = recipes;
-  }
-}
+// class DishClass implements Dish {
+//   name: string;
+//   id: number;
+//   cuisine: string;
+//   slug: string;
+//   url: string;
+//   ingredients: Ingredient[];
+//   recipes: Recipe;
+//   constructor(
+//     name: string,
+//     id: number,
+//     cuisine: string,
+//     slug: string,
+//     url: string,
+//     ingredients: Ingredient[],
+//     recipes: Recipe
+//   ) {
+//     this.name = name;
+//     this.id = id;
+//     this.cuisine = cuisine;
+//     this.slug = slug;
+//     this.url = url;
+//     this.ingredients = ingredients;
+//     this.recipes = recipes;
+//   }
+// }

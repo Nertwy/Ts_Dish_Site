@@ -13,7 +13,10 @@ class ApiErrors extends Error {
     return new ApiErrors(400, message, errors);
   }
   static AlreadyExists(message: string, errors = []) {
-    return new ApiErrors(409, message,errors);
+    return new ApiErrors(409, message, errors);
+  }
+  static TokenExpired() {
+    return new ApiErrors(401, "User Token Expired")
   }
 }
 export default ApiErrors;

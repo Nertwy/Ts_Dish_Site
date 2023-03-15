@@ -1,3 +1,4 @@
+
 //Implement tokenVersion to revoke all user tokens to be invalid
 interface Tokens {
   access: string;
@@ -9,12 +10,19 @@ export interface User {
   name: string;
   password: string;
   email?: string;
-  confirmed:boolean;
-  tokens?:Tokens
+  confirmed: boolean;
+  tokens?: Tokens
   role?: Role;
 }
 export enum Role {
   Admin = "ADMIN",
   User = "USER",
   Moderator = "MODERATOR"
+}
+//Client Side
+export interface UserTokenData {
+  name: string,
+  role: string,
+  email: string,
+  id: number
 }

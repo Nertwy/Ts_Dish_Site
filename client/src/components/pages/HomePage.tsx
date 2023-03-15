@@ -1,15 +1,24 @@
 import React, { FC, StrictMode, useEffect, useState } from "react";
-import CardList from "../Cards Logic/CardList";
 import Footer from "../Footer";
 import StickyNav from "../StickyNav";
 import img from "../../images/Logo.png";
 import { Dish } from "../../../../interfaces/Ingridient";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState, toggleDarkMode } from "../../app/store";
+import CardList from "../Cards Logic/CardInfiniteList";
+import CardInfiniteList from "../Cards Logic/CardInfiniteList";
 //Dark\Light themes
 
 const Header: FC<{ setID?: Function }> = (props: { setID?: Function }) => {
+  const theme = useSelector((state: RootState) => state.theme.darkMode)
+  const dispatch: AppDispatch = useDispatch()
+  const handleTheme = () => {
+    console.log(theme);
+    dispatch(toggleDarkMode())
+  }
   return (
-    <header className="top-0 h-auto w-auto text-center bg-green-500  overflow-hidden drop-shadow ">
+    <header className="top-0 h-auto w-auto text-center bg-green-500  overflow-hidden drop-shadow dark:bg-gray-600" onClick={handleTheme}>
       <h2 className="text-center text-6xl p-10 font-bold">
         Welcome to Home Page!
       </h2>
@@ -41,7 +50,6 @@ const Home: FC<{ Dish: Dish; setID?: Function }> = (props: {
     callback(cardInfo);
     navigate("/dish");
   };
-  let [token, setToken] = useState();
   const handleRefresh = async () => {
     let a = await fetch("http://localhost:8000/refresh_token", {
       method: "POST",
@@ -57,7 +65,7 @@ const Home: FC<{ Dish: Dish; setID?: Function }> = (props: {
     <StrictMode>
       <Header></Header>
       <StickyNav setFood={props.Dish.transport!}></StickyNav>
-      <CardList {...props.Dish} func={props.Dish.transport}></CardList>
+      <CardInfiniteList {...props.Dish} func={props.Dish.transport}></CardInfiniteList>
       <Footer></Footer>
     </StrictMode>
   );

@@ -1,26 +1,59 @@
+import jwtDecode, { JwtPayload } from "jwt-decode";
 import { FC, useState } from "react";
+import { useDispatch } from "react-redux";
+import { modifyDishLike } from "../../app/CardListSlice";
+import { isTokenExpired, refreshToken } from "../../interseptor/Tokens";
 
-interface Props {
-  isLiked: boolean;
-  handleClick: () => void;
-  className?: string;
+export interface UserTokenData extends JwtPayload {
+  name: string,
+  role: string,
+  email: string,
+  id: number
 }
+interface Like {
+  id: number,
+  isLiked: boolean | undefined
+}
+const HeartButton: FC<Like> = ({ id, isLiked, children }) => {
+  const dispatch = useDispatch()
+  const handleLike = async () => {
+    try {
+      const token = localStorage.getItem("JAT")
+      // If 0 token provided
+      if (!token) {
+        //handle if no Access token provided so basicly show message that you should register
+        return
+      }
+      const decode: UserTokenData = jwtDecode(token)
+      if (isTokenExpired(decode.exp!)) {
+        await refreshToken()
+        await handleLike()
+        return
+      }
+      const resul = await fetch("http://localhost:8000/like", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        credentials: "include",
+        body: JSON.stringify({ dish_id: id, user_id: decode.id })
+      })
+      //if there is token but expired
+      if (resul.status !== 200) {
+        await refreshToken()
+        await handleLike()
+      }
+      console.log(id);
 
-const HeartButton: FC<{id:number,handleClick:Function, isLiked:boolean}> = (props) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const handleLike = ()=>{
-    if(!localStorage.getItem("JAT")){
-     //handle if no Access token provided so basicly show message that you should register
-    return
+      dispatch(modifyDishLike(id))
+    } catch (error) {
+      console.error(error);
     }
-    like()
-    
-  }
-  const like = () => {
-    setIsLiked(!isLiked)
+    return
   }
   return (
-    <button className="absolute right-3 bottom-0" onClick={()=>props.handleClick()} >
+    <button className="absolute right-3 bottom-0" onClick={handleLike} >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className={`w-6 h-auto fill-current ${isLiked ? "text-red-400" : "text-gray-400"

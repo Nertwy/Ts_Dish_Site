@@ -1,14 +1,17 @@
 import React, { FC, useState } from "react";
-import { InputData } from "../../../types/types";
-const ChangeableInput: FC<InputData> = ({ data }) => {
-  const [newData, setName] = useState<InputData>({ data: data });
+interface InputProps {
+  className?: string,
+  data?: string
+}
+const ChangeableInput: FC<InputProps> = ({ data, className}) => {
+  const [newData, setName] = useState<string | undefined>(data);
   function handleChange(event: React.FormEvent<HTMLInputElement>) {
     let a = event.currentTarget.value;
-    setName({ data: a });
+    setName(a);
   }
   return (
-    <div>
-      <input value={newData.data} onChange={handleChange}></input>
+    <div className={className}>
+      <input value={data} onChange={handleChange}></input>
     </div>
   );
 };

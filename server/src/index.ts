@@ -1,40 +1,33 @@
 import express from "express";
-import cors from "cors";
+import cors, { CorsOptions } from "cors";
 import { ErrorMiddleWare } from "../middleware/middleware";
 import router from "./router";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
-import { buildSchema } from "graphql";
-import { graphqlHTTP } from "express-graphql"
-import { AddressInfo } from "net";
+
 const port: string | number = process.env.PORT || 8000;
 export const app = express();
-
-const schema = buildSchema(`
-  type Query {
-    hello: String
-  }
-`);
-
-
+const corsOptions = cors({
+  origin: ['*', "http://localhost:3000"],
+  methods: "GET,POST,PUT,PATCH,HEAD,DELETE",
+  credentials: true,
+  // optionsSuccessStatus: 200,
+})
 
 app.use(
+  corsOptions,
   express.json(),
-  // graphqlHTTP({
-  //   schema
-  // }),
-  cors({ credentials: true, origin: "http://localhost:3000" }),
   cookieParser(),
   router,
-  ErrorMiddleWare
+  ErrorMiddleWare,
 );
 // app.use(express.static(path.join(__dirname, "dist")));
 app.use(express.static(__dirname))
 app.get("/", (req, res) => {
-  res.json({asd:"HI"})
+  res.json({ asd: "HI" })
   // res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-app.listen(port,  () => {
+app.listen(port, () => {
   console.log(`Listening at port ${port}`);
 });

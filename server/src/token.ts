@@ -3,10 +3,11 @@ import { decode, sign, verify } from "jsonwebtoken";
 import "dotenv/config";
 import { Request, Response } from "express";
 import ApiErrors from "./errors";
+import { getUserByEmail } from "./postgre";
 
 export const createAccessToken = (user: User): string => {
   const token = sign(
-    { name: user.name, role: user.role, email: user.email },
+    { name: user.name, role: user.role, email: user.email, id: user.id },
     process.env.ACCESSSECRET as string,
     {
       expiresIn: "15s"
@@ -20,6 +21,7 @@ export const createRefreshToken = (user: User): string => {
       name: user.name,
       role: user.role,
       email: user.email,
+      id: user.id,
       tokenVersion: user.tokens?.tokenVersion
     },
     process.env.REFRESHSECRET as string,
@@ -42,15 +44,19 @@ export const verifyAccessToken = (AccessToken: string) => {
     let userData = verify(AccessToken, process.env.ACCESSSECRET as string);
     return userData;
   } catch (error) {
+    console.error(error);
+
     return null;
   }
 };
 
-export const verifyRefreshToken = (RefreshToken: string) => {
+
+export const verifyRefreshToken = async (RefreshToken: string) => {
   try {
     const userData = verify(RefreshToken, process.env.REFRESHSECRET as string);
     return userData;
   } catch (error) {
+    // console.error(error);
     return null;
   }
 };
@@ -63,7 +69,8 @@ export const verifyTokenBearer = (
   try {
     const loginHeaderToken = req.headers.authorization?.split(" ")[1];
     if (!loginHeaderToken) return next(ApiErrors.UnauthorizedError());
-    verifyAccessToken(loginHeaderToken);
+    if (!verifyAccessToken(loginHeaderToken))
+      return next(ApiErrors.TokenExpired())
     res.locals.body = req.body;
     return next();
   } catch (error) {
