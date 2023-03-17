@@ -37,8 +37,8 @@ const upload = multer({
     callback(null, true);
   }
 });
-
 router.use(cookieParser());
+router.post("/post-food",RouteLogic.AddDish)
 router.post("/register", emailValidatorMiddleware, verifyEmailExist, RouteLogic.Register);
 router.post("/login", checkIfLoginCorrect, RouteLogic.Login);
 router.post(

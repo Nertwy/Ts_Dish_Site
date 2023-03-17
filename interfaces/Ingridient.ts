@@ -15,7 +15,7 @@ export interface Dish {
   id?: number;
   cuisine: string;
   slug: string;
-  url: string;
+  url?: string;
   like?:boolean;
   ingredients: Ingredient[];
   recipes?: Recipe;

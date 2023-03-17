@@ -1,6 +1,7 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import counterReducer from '../features/counter/CounterSlice'
+import addDishSlice from "./addDishSlice";
 import CardListSclice from "./CardListSlice";
 import UserSlice from "./UserSlice";
 interface ThemeState {
@@ -30,7 +31,8 @@ export const store = configureStore({
     counter: counterReducer,
     list: CardListSclice,
     theme: themeSlice.reducer,
-    user: UserSlice
+    user: UserSlice,
+    addDish:addDishSlice
   }
 })
 

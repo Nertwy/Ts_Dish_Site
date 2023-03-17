@@ -1,4 +1,7 @@
-import React, { FC, FormEvent, useState } from "react";
+import React, { FC, FormEvent, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { changeCuisine } from "../app/addDishSlice";
+import { RootState } from "../app/store";
 type Cuisine = {
     name: string;
     nationality: string;
@@ -49,12 +52,15 @@ const cuisines: Cuisine[] = [
     { name: "German cuisine", nationality: "Germany" },
     { name: "Ghanaian cuisine", nationality: "Ghana" },]
 export default function CuisineSearch() {
-    const [inputValue, setInputValue] = useState("");
+    const cuisineStore = useSelector((state: RootState) => state.addDish.dish.cuisine)
+    const dispatch = useDispatch()
+    // const [inputValue, setInputValue] = useState("");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedCuisine, setSelectedCuisine] = useState<Cuisine | null>(null);
 
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-        setInputValue(event.target.value);
+        dispatch(changeCuisine(event.target.value))
+        // setInputValue(event.target.value);
     }
 
     function handleDropdownOpen() {
@@ -67,21 +73,21 @@ export default function CuisineSearch() {
 
     function handleCuisineSelect(cuisine: Cuisine) {
         setSelectedCuisine(cuisine);
-        setInputValue(cuisine.name);
+        // setInputValue(cuisine.name);
+        dispatch(changeCuisine(cuisine.name))
         setIsDropdownOpen(false);
     }
 
     const filteredCuisines = cuisines.filter((cuisine: Cuisine) =>
-        cuisine.name.toLowerCase().includes(inputValue.toLowerCase())
+        cuisine.name.toLowerCase().includes(cuisineStore.toLowerCase())
     );
-
     return (
-        <div className="relative">
+        <div className="w-full">
             <input
-                className="border-gray-300 border-2 rounded-md p-2 w-1/4"
+                className="border-gray-300 border-2 rounded-md p-2 w-full"
                 type="text"
                 placeholder="Search for a cuisine"
-                value={inputValue}
+                value={cuisineStore}
                 onChange={handleInputChange}
                 onFocus={handleDropdownOpen}
                 onBlur={handleDropdownClose}
