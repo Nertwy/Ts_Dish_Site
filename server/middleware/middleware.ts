@@ -24,12 +24,12 @@ export const verifyToken = (req: Request, res: Response, next: Function) => {
   return next();
 };
 
-export const emailValidatorMiddleware = (req:Request,res:Response,next:NextFunction)=>{
-  const {email} = req.body;
-  if(!email || !validateEmail(email)){
-    return res.status(400).json({message:"Invalid email address"});
+export const emailValidatorMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const { email } = req.body;
+  if (!email || !validateEmail(email)) {
+    return res.status(400).json({ message: "Invalid email address" });
   }
-  next()
+  return next()
 }
 // export const verifyAdmin = async (
 //   req: Request,
@@ -52,14 +52,14 @@ export const emailValidatorMiddleware = (req:Request,res:Response,next:NextFunct
 //   }
 // };
 
-export const verifyRoles =(...allowedRoles:Role[])=>{
-  return(req:Request,res:Response,next:NextFunction)=>{
-  const roles:Role[] = req.body.roles;
-    if(!roles) return res.sendStatus(401)
+export const verifyRoles = (...allowedRoles: Role[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const roles: Role[] = req.body.roles;
+    if (!roles) return res.sendStatus(401)
     const rolesArray = [...allowedRoles]
-    const result =roles.map(role=>rolesArray.includes(role)).find(val=>val===true);
-    if(!result) return res.sendStatus(401);
-    next()
+    const result = roles.map(role => rolesArray.includes(role)).find(val => val === true);
+    if (!result) return res.sendStatus(401);
+    return next()
   }
 }
 // export const verifyUserExist = async (
@@ -127,7 +127,7 @@ export const ErrorMiddleWare = (
   err: Error | ApiErrors,
   req: Request,
   res: Response,
-  next: Function
+  _next: Function
 ) => {
   console.log(err);
   if (err instanceof ApiErrors) {

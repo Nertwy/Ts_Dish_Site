@@ -32,7 +32,7 @@ export const store = configureStore({
     list: CardListSclice,
     theme: themeSlice.reducer,
     user: UserSlice,
-    addDish:addDishSlice
+    addDish:addDishSlice,
   }
 })
 

@@ -1,6 +1,8 @@
 import React, { FC, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Dish } from "../../../../interfaces/Ingridient";
+import { RootState } from "../../app/store";
 import HeartButton from "./HeartContainer";
 const Card: FC<Dish> = (props) => {
   const navigate = useNavigate();
@@ -20,7 +22,6 @@ const Card: FC<Dish> = (props) => {
             className='h-full w-full'
             onClick={() => {
               localStorage.setItem("food", JSON.stringify(props))
-              props.transport?.(props);
               navigate("/dish");
             }}
           />

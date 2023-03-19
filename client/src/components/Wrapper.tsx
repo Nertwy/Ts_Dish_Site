@@ -24,7 +24,8 @@ const Wrapper: FC = () => {
     ingredients: [],
     slug: "",
     url: "",
-    transport: handleCardData
+    transport: handleCardData,
+    recipes: { id: 0, step: [] }
   };
   let [cardData, SetCardData] = useState<Dish>(Dish);
   useEffect(() => {

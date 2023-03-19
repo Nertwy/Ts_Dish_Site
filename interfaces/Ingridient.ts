@@ -6,22 +6,39 @@ export interface Ingredient {
 }
 
 export interface Recipe {
-  id: number[];
-  step: (string | null)[];
+  id: number;
+  step: string[];
 }
 
+export interface ClientDish{
+  name:string,
+  slug:string,
+  cuisine:string,
+  ingredients:Ingredient[]
+  recipes:Recipe
+  like:boolean
+}
 export interface Dish {
   name: string;
   id?: number;
   cuisine: string;
   slug: string;
   url?: string;
-  like?:boolean;
+  like?: boolean;
   ingredients: Ingredient[];
-  recipes?: Recipe;
+  recipes: Recipe;
   transport?: Function;
 }
-
+export interface LoginInterface {
+  token: string,
+  success: boolean,
+  likes: DishLikes[] | null
+}
+export interface DishLikes {
+  id: number
+  user_id: number,
+  dish_id: number
+}
 // class DishClass implements Dish {
 //   name: string;
 //   id: number;

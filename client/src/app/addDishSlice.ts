@@ -1,19 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { Dish, Ingredient, Recipe } from "../../../interfaces/Ingridient"
+import { ClientDish, Dish, Ingredient, Recipe } from "../../../interfaces/Ingridient"
+import { slugify } from "transliteration"
 interface FormData {
-    dish: Dish
+    dish: ClientDish
 }
 const initialState: FormData = {
     dish: {
+        like: false,
         cuisine: "",
         name: "",
         slug: "",
-        recipes: {
-            id: [],
-            step: [""]
-        },
         ingredients: [{ id: -1, amount: 0, measureUnit: "", name: "" }],
-
+        recipes: { id: 0, step: [""] }
     }
 }
 const addDishSlice = createSlice({
@@ -26,13 +24,17 @@ const addDishSlice = createSlice({
         handleIngChange: (state, payload: PayloadAction<Ingredient[]>) => {
             state.dish.ingredients = payload.payload
         },
-        handleRecipeChange: (state, payload: PayloadAction<Recipe>) => {
-            state.dish.recipes = payload.payload
+        handleRecipeChange: (state, payload: PayloadAction<string[]>) => {
+           state.dish.recipes.step = payload.payload
+           return state
         },
-        handleNameChange:(state,payload:PayloadAction<string>)=>{
+        handleNameChange: (state, payload: PayloadAction<string>) => {
             state.dish.name = payload.payload
+        },
+        setSlug: (state, payload: PayloadAction<string>) => {
+            state.dish.slug = payload.payload
         }
     }
 })
-export const { changeCuisine,handleIngChange,handleRecipeChange,handleNameChange } = addDishSlice.actions
+export const { changeCuisine, handleIngChange, handleRecipeChange, handleNameChange, setSlug } = addDishSlice.actions
 export default addDishSlice.reducer

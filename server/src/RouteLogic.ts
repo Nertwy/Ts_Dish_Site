@@ -15,17 +15,26 @@ import {
   checkEmailExists,
   storeRefreshToken,
   getUserByEmail,
-  getDish,
+  getDishByIndex,
   deleteRefreshToken,
   insertLike,
   toggleLike,
   getUserLikes,
+  insertDish,
+  getDishById,
 } from "./postgre";
-import { Dish } from "../../interfaces/Ingridient";
+import { ClientDish, Dish } from "../../interfaces/Ingridient";
+import { PrismaClient } from "@prisma/client";
+import path from "path";
 
 const upload = multer({ dest: "uploads/" });
-
+const prisma = new PrismaClient()
 class RouteLogic {
+  SendImage(req: Request, res: Response) {
+    let query = req.params.name
+    const fileDest = path.join(__dirname, '..', 'uploads', query)
+    res.sendFile(fileDest)
+  }
   async Like(req: Request, res: Response, next: Function) {
     try {
       let { dish_id, user_id } = req.body;
@@ -56,7 +65,7 @@ class RouteLogic {
 
       return res.end();
     } catch (e) {
-      next(e);
+      return next(e);
     }
   }
 
@@ -114,30 +123,44 @@ class RouteLogic {
     }
   }
 
-  async PostFood(req: Request, res: Response, next: Function) {
-    res.json(res.locals.body);
-    res.end();
-  }
-  Verify(req: Request, res: Response, next: Function) { }
+
+
   async AddDish(req: Request, res: Response, next: Function) {
-    let dish: Dish = {
-      name: "",
-      id: 0,
-      cuisine: "",
-      slug: "",
-      url: "",
-      ingredients: [],
-    };
-    if (checkPropertiesNull(dish))
-      return next(ApiErrors.BadRequest("Not all fields have been filed"));
-    res.send({ ok: true });
+    try {
+      const { dish } = req.body
+      const clientDish: ClientDish = JSON.parse(dish)
+      clientDish.ingredients.pop()!
+      console.log(clientDish.recipes);
+      
+      // clientDish.recipes.step.pop()
+      const fileName = req.file?.filename
+      const url = "http://localhost:8000/uploads/" + fileName
+      if (checkPropertiesNull(clientDish))
+        throw next(ApiErrors.BadRequest("Not all fields have been filed"));
+      await insertDish(clientDish, url)
+      res.send({ ok: true, message: "Created successfully" });
+    } catch (error) {
+      console.log(error);
+    }
     next();
   }
   async getDish(req: Request, res: Response, next: NextFunction) {
-    let data = await getDish(req.body.id);
+    let data = await getDishById(req.body.id);
     res.json(data);
     next();
   }
+  async data(req: Request, res: Response, next: Function) {
+    try {
+      let id: number = Number(req.query.id);
+      let dish = await getDishByIndex(id)
+      res.json(dish);
+    } catch (error) {
+      res.status(400);
+    } finally {
+      res.end();
+    }
+  }
+
 }
 
-export = new RouteLogic();
+export default new RouteLogic();

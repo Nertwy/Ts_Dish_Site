@@ -1,5 +1,5 @@
 import express from "express";
-import cors, { CorsOptions } from "cors";
+import cors from "cors";
 import { ErrorMiddleWare } from "../middleware/middleware";
 import router from "./router";
 import "dotenv/config";
@@ -11,7 +11,6 @@ const corsOptions = cors({
   origin: ['*', "http://localhost:3000"],
   methods: "GET,POST,PUT,PATCH,HEAD,DELETE",
   credentials: true,
-  // optionsSuccessStatus: 200,
 })
 
 app.use(
@@ -20,14 +19,15 @@ app.use(
   cookieParser(),
   router,
   ErrorMiddleWare,
+  express.static("uploads")
 );
-// app.use(express.static(path.join(__dirname, "dist")));
+
 app.use(express.static(__dirname))
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.json({ asd: "HI" })
   // res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
-
 app.listen(port, () => {
   console.log(`Listening at port ${port}`);
 });
+

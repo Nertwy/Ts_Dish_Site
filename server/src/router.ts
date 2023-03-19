@@ -9,15 +9,18 @@ import { verifyTokenBearer } from "./token";
 import multer from "multer";
 import ApiErrors from "./errors";
 import RouteLogic from "./RouteLogic";
-import { checkIfLoginCorrect, getDish } from "./postgre";
+import { checkIfLoginCorrect } from "./postgre";
 import { PrismaClient } from "@prisma/client";
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from '../build/swagger.json'
 const router = Router();
 let storageConfig = multer.diskStorage({
   destination: (req, res, cb) => {
     cb(null, "./uploads");
   },
   filename(req, file, callback) {
-    callback(null, Date.now() + "-" + file.originalname);
+    const fileExt = file.originalname.split(".").pop()
+    callback(null,Date.now()+"."+fileExt);
   }
 });
 const MIMETYPE_MAP: any = {
@@ -26,6 +29,7 @@ const MIMETYPE_MAP: any = {
   "image/jpg": "jpg"
 };
 const upload = multer({
+  dest: "uploads/",
   storage: storageConfig,
   limits: { fileSize: 50_000_000 },
   fileFilter(req, file, callback) {
@@ -37,35 +41,17 @@ const upload = multer({
     callback(null, true);
   }
 });
+router.use('/api-docs', swaggerUi.serve);
 router.use(cookieParser());
-router.post("/post-food",RouteLogic.AddDish)
+router.get('/api-docs', swaggerUi.setup(swaggerDocument));
+router.post("/post-food", upload.single("file"), RouteLogic.AddDish)
 router.post("/register", emailValidatorMiddleware, verifyEmailExist, RouteLogic.Register);
 router.post("/login", checkIfLoginCorrect, RouteLogic.Login);
-router.post(
-  "/addDish",
-  /*verifyAuth,*/ RouteLogic.AddDish,
-  upload.single("image")
-);
-router.post("/like",verifyTokenBearer,RouteLogic.Like);
+router.post("/like", verifyTokenBearer, RouteLogic.Like);
 router.get("/refresh", RouteLogic.Refresh);
-
 router.post("/logout", RouteLogic.Logout);
-router.get("/getDB", verifyTokenBearer, RouteLogic.PostFood);
 router.get("/dish", RouteLogic.getDish)
-// router.get("/test",async(req,res)=>{
-//   let id:number = Number(req.query.id)
-//   res.json(await getDish(id)).end()
-// })
-router.get("/data", async (req: Request, res: Response) => {
-  try {
-    let id:number = Number(req.query.id);
-    let dish = await getDish(id)
-    res.json(dish);
-  } catch (error) {
-    res.status(400);
-  } finally {
-    res.end();
-  }
-});
-router.get("/checkAccessToken", RouteLogic.Verify);
+router.get("/data", RouteLogic.data);
+router.get("/uploads/:name", RouteLogic.SendImage)
+// router.get("/checkAccessToken", RouteLogic.Verify);
 export default router;

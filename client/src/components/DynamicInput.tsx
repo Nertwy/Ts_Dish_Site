@@ -3,9 +3,9 @@ import { Ingredient, Recipe } from "../../../interfaces/Ingridient";
 import { useInput } from "../hooks/Hooks"
 interface DynamicInputProps {
     label: string,
-    handleData: Function
+    handleData?: Function
 }
-const DynamicInput: FC<DynamicInputProps> = ({ label, handleData}) => {
+const DynamicInput: FC<DynamicInputProps> = ({ label, handleData }) => {
     const [inputs, setInputs] = useState<string[]>(['']);
     const handleInputChange = (index: number, value: string) => {
         const newInputs = [...inputs];
@@ -21,6 +21,7 @@ const DynamicInput: FC<DynamicInputProps> = ({ label, handleData}) => {
 
     };
     useEffect(() => {
+        if (!handleData) return
         handleData(inputs)
     }, [inputs])
     return (
@@ -34,7 +35,7 @@ const DynamicInput: FC<DynamicInputProps> = ({ label, handleData}) => {
                         <input
                             id={index}
                             placeholder={`${label} №...${index + 1}`}
-                            className="rounded-lg border-transparent flex-1 text-center appearance-none border border-gray-400 w-full bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                            className="p-1 rounded-lg border-transparent flex-1 text-center appearance-none border border-gray-400 w-full bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                             key={index}
                             type="text"
                             value={value}

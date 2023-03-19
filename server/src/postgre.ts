@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { Client, Pool, QueryResult } from "pg";
-import { Dish } from "../../interfaces/Ingridient";
+import { ClientDish, Dish } from "../../interfaces/Ingridient";
 import { User } from "../../interfaces/user";
 import ApiErrors from "./errors";
 import food from "./Database_of_things/FoodDB copy.json";
-import { PrismaClient } from "@prisma/client";
+import { DishLikes, Prisma, PrismaClient } from "@prisma/client";
 
 interface CustomRequest extends Request {
   data?: any; // Define the 'data' property as optional and of type 'any'
@@ -12,12 +12,8 @@ interface CustomRequest extends Request {
 
 const postgreString = "postgresql://postgres:123@localhost:5432/postgres";
 //Refactore code to use Prisma fully without pg
-// const prisma = new PrismaClient()
-// prisma.dishes.create({
-//   data:{
-    
-//   }
-// })
+const prisma = new PrismaClient()
+
 const pool = new Pool({
   connectionString: postgreString,
 });
@@ -47,36 +43,48 @@ export async function createUserTable(): Promise<void> {
   }
 }
 
-
-async function insertDish(dish: Dish): Promise<void> {
-  const client = await pool.connect();
-
-  try {
-    await client.query("BEGIN");
-
-    const queryText =
-      "INSERT INTO dishes (name,  cuisine, slug, url, ingredients, recipes) VALUES ($1, $2, $3, $4, $5, $6)";
-    const values = [
-      dish.name,
-      dish.cuisine,
-      dish.slug,
-      dish.url,
-      JSON.stringify(dish.ingredients),
-      JSON.stringify(dish.recipes),
-    ];
-
-    await client.query(queryText, values);
-
-    await client.query("COMMIT");
-  } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  } finally {
-    client.release();
-  }
+export async function insertDish(dish: ClientDish, url: string): Promise<void> {
+  const result = await prisma.dishes.create({
+    data: {
+      cuisine: dish.cuisine,
+      ingredients: JSON.stringify(dish.ingredients),
+      name: dish.name,
+      recipes: JSON.stringify(dish.recipes),
+      slug: dish.slug,
+      url: url
+    }
+  })
 }
+// async function insertDish(dish: Dish): Promise<void> {
+//   const client = await pool.connect();
+
+//   try {
+//     await client.query("BEGIN");
+
+//     const queryText =
+//       "INSERT INTO dishes (name,  cuisine, slug, url, ingredients, recipes) VALUES ($1, $2, $3, $4, $5, $6)";
+//     const values = [
+//       dish.name,
+//       dish.cuisine,
+//       dish.slug,
+//       dish.url,
+//       JSON.stringify(dish.ingredients),
+//       JSON.stringify(dish.recipes),
+//     ];
+
+//     await client.query(queryText, values);
+
+//     await client.query("COMMIT");
+//   } catch (error) {
+//     await client.query("ROLLBACK");
+//     throw error;
+//   } finally {
+//     client.release();
+//   }
+// }
 
 async function createDishTable(): Promise<void> {
+
   const checkQuery = `
       SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'dishes';
     `;
@@ -99,16 +107,17 @@ async function createDishTable(): Promise<void> {
     if (rows[0].count === "0") {
       await client.query(createQuery);
     } else {
-      // food.forEach(async (elem,index)=>{
-      //     let data:Dish = {
+      // food.forEach(async (elem:any,index)=>{
+      //     let data:ClientDish = {
       //         cuisine:elem.cuisine,
       //         ingredients:elem.Ingridiences,
       //         name:elem.name,
-      //         recipes:elem.recipes,
+      //         recipes:elem.recipes!,
       //         slug:elem.slug,
-      //         url:elem.url
+      //         like:false
+      //         // url:elem.url
       //     };
-      //     await insertDish(data)
+      //     await insertDish(data,elem.url)
       // })
     }
     client.release();
@@ -213,7 +222,7 @@ export async function storeRefreshToken(
   token: string
 ): Promise<void> {
   const tokenValues = [token, user.id];
-  console.log("USER ID = ", user.id);
+  // console.log("USER ID = ", user.id);
 
   const tokenQuery = `INSERT INTO "RefreshToken" ("name",user_id) VALUES ($1, $2)`;
   try {
@@ -224,13 +233,22 @@ export async function storeRefreshToken(
   }
 }
 export async function deleteRefreshToken(token: string): Promise<void> {
-  const tokenValues = [token];
-  const tokenQuery = `Delete FROM "RefreshToken" WHERE Name = $1`;
   try {
-    await pool.query(tokenQuery, tokenValues);
+    const result = await prisma.refreshToken.findFirst({
+      where: {
+        name: token
+      }
+    })
+
+    if (result) {
+      await prisma.refreshToken.delete({
+        where: {
+          id: result.id
+        }
+      })
+    }
   } catch (error) {
-    console.error("Error deleting token:", error);
-    throw error;
+    console.error(error);
   }
 }
 async function createLikesTable() {
@@ -250,12 +268,15 @@ async function createLikesTable() {
     client.release();
   }
 }
-export async function getUserLikes(id: number){
+export async function checkRefreshToken(token: string) {
+
+}
+export async function getUserLikes(id: number) {
   const client = await pool.connect()
   const value = [id.toString()]
   const query = `SELECT * FROM "DishLikes" WHERE user_id=$1`
   try {
-    const result: QueryResult<Dish> = await pool.query(query, value)
+    const result: QueryResult<DishLikes> = await pool.query(query, value)
     return result.rows
   } catch (error) {
     console.error(error);
@@ -401,8 +422,24 @@ export async function insertUser(user: User): Promise<void> {
   await client.query(query, values);
   client.release();
 }
+export async function getDishByIndex(index: number):Promise<Dish> {
+  const dish = await prisma.dishes.findFirst({
+    skip: index,
+    take: 1
+  })
 
-export async function getDish(id: number): Promise<Dish> {
+  const res: Dish = {
+    id: dish?.id,
+    cuisine: dish?.cuisine!,
+    ingredients: JSON.parse(dish?.ingredients?.toString()!),
+    recipes: JSON.parse(dish?.recipes?.toString()!),
+    name: dish?.name!,
+    slug: dish?.slug!,
+    url: dish?.url
+  }
+  return res
+}
+export async function getDishById(id: number): Promise<Dish> {
   const client = await pool.connect();
   const query = `SELECT * FROM dishes WHERE id=$1`;
   const values = [id];

@@ -1,0 +1,25 @@
+{
+    "entryFile": "src/index.ts",
+    "noImplicitAdditionalProperties": "throw-on-extras",
+    "controllerPathGlobs": [
+        "src/*Controller.ts"
+    ],
+    "spec": {
+        "outputDirectory": "build",
+        "specVersion": 3
+    },
+    "routes": {
+        "routesDir": "build"
+    },
+    "swagger": {
+        "outputDirectory": ".",
+        "entryFile": "./src/index.ts"
+    },
+    "compilerOptions": {
+        "paths": {
+            "custome-module": [
+                "libs/custome-module/src/index.ts"
+            ]
+        }
+    }
+}

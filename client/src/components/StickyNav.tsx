@@ -102,7 +102,9 @@ const StickyNav: FC<{ setFood: Function }> = (props: {
         Liked
       </a> : <></>}
 
-
+      {userLogged ? <a
+        className="border-2 border-transparent p-2 hover:border-2 hover:border-white  rounded-xl transition hover:duration-300 hover:cursor-pointer"
+        onClick={() => navigate("/AddDish")}>Add Dish</a> : <></>}
       <ToggleSwitch></ToggleSwitch>
     </nav>
   );

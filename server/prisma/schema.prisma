@@ -8,10 +8,10 @@ datasource db {
 }
 
 model AccessToken {
-  id      Int     @id @default(autoincrement())
-  name    String? @db.VarChar(255)
-  user_id Int?
-  users   users?  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
+  id      Int    @id @default(autoincrement())
+  name    String
+  user_id Int
+  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
 }
 
 model DishLikes {
@@ -24,10 +24,10 @@ model DishLikes {
 }
 
 model RefreshToken {
-  id      Int     @id @default(autoincrement())
-  name    String? @db.VarChar(255)
-  user_id Int?
-  users   users?  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
+  id      Int    @id @default(autoincrement())
+  name    String
+  user_id Int
+  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
 }
 
 model dishes {
@@ -43,11 +43,12 @@ model dishes {
 
 model users {
   id           Int            @id @default(autoincrement())
-  name         String?        @db.VarChar(255)
-  password     String?        @db.VarChar(255)
-  email        String?        @db.VarChar(255)
-  confirmed    Boolean?
-  role         String?        @db.VarChar(255)
+  name         String
+  password     String
+  email        String?
+  confirmed    Boolean?       @default(false)
+  tokens       Json?
+  role         String?
   AccessToken  AccessToken[]
   DishLikes    DishLikes[]
   RefreshToken RefreshToken[]

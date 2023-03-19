@@ -22,7 +22,7 @@ const Header: FC<{ setID?: Function }> = (props: { setID?: Function }) => {
       <h2 className="text-center text-6xl p-10 font-bold">
         Welcome to Home Page!
       </h2>
-      <img src={img} className="h-24  mx-auto" alt="Dish for wish" />
+      <img src={img} className="h-24  mx-auto  transition-transform duration-200 hover:scale-110 z-10" alt="Dish for wish" />
     </header>
   );
 };
@@ -51,15 +51,15 @@ const Home: FC<{ Dish: Dish; setID?: Function }> = (props: {
     navigate("/dish");
   };
   const handleRefresh = async () => {
-    let a = await fetch("http://localhost:8000/refresh_token", {
-      method: "POST",
-      credentials: "include",
-    });
-    let b = await a.json();
-    console.log(b);
+    // let a = await fetch("http://localhost:8000/refresh", {
+    //   method: "GET",
+    //   credentials: "include",
+    // });
+    // let b = await a.json();
+    // console.log(b);
   };
   useEffect(() => {
-    handleRefresh();
+    // handleRefresh();
   }, []);
   return (
     <StrictMode>

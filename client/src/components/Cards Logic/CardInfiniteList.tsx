@@ -5,6 +5,7 @@ import { fetchCard } from "../../api/api";
 import { AppDispatch, RootState } from "../../app/store";
 import { addDishToList } from "../../app/CardListSlice";
 import Card from "./Card";
+import Loader from "../Loader";
 interface CardListProps {
   dishes: Dish[]
 }
@@ -30,12 +31,13 @@ const CardInfiniteList: FC<{ func: Function | undefined }> = (prop: {
     }
   };
   useEffect(() => {
-    fetchCards();
+    // setTimeout(()=>{ },3000);
+    fetchCards()
   }, []);
   return (
     <>
       {loading ? (
-        <div className="">Loading...</div>
+        <Loader></Loader>
       ) : (
         <>
           <CardList dishes={cards} />

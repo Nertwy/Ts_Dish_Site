@@ -10,12 +10,12 @@ export const hashUserPass = (pass: string): string => {
 };
 export const checkPropertiesNull = (obj: Object):boolean => {
   let a = Object.values(obj).every((value) => {
-    if (value === null || value === undefined || value === "") {
+    if (value === null || value === undefined ) {
       //false - there is null undefined or empty string
-      return false;
+      return true;
     } else {
       //true - result is ok
-      return true;
+      return false;
     }
   });
   return a;
@@ -29,4 +29,8 @@ export const fileIsImage = (filename: string|undefined): boolean => {
 export function validateEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
+}
+
+export const createURl = (fileName:string)=>{
+  return ""
 }
