@@ -19,7 +19,7 @@ const Header: FC<{ setID?: Function }> = (props: { setID?: Function }) => {
   }
   return (
     <header className="top-0 h-auto w-auto text-center bg-green-500  overflow-hidden drop-shadow dark:bg-gray-600" onClick={handleTheme}>
-      <h2 className="text-center text-6xl p-10 font-bold">
+      <h2 className="font-fasthand text-center text-6xl p-10 font-bold">
         Welcome to Home Page!
       </h2>
       <img src={img} className="h-24  mx-auto  transition-transform duration-200 hover:scale-110 z-10" alt="Dish for wish" />

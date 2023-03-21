@@ -4,6 +4,11 @@ module.exports = {
     extend: {
       'background':"url('./src/images/Background.jpg')"
     },
+    fontFamily:{
+      'fasthand': ['"Fasthand"', 'serif']
+    },
   },
+  
   plugins: [],
 }
+

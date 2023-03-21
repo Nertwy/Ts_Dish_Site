@@ -22,7 +22,7 @@ const addDishSlice = createSlice({
             state.dish.cuisine = payload.payload
         },
         handleIngChange: (state, payload: PayloadAction<Ingredient[]>) => {
-            state.dish.ingredients = payload.payload
+           state.dish.ingredients = payload.payload
         },
         handleRecipeChange: (state, payload: PayloadAction<string[]>) => {
            state.dish.recipes.step = payload.payload

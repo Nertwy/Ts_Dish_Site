@@ -55,7 +55,7 @@ const StickyNav: FC<{ setFood: Function }> = (props: {
   };
   const navigate = useNavigate();
   return (
-    <nav className="sticky top-0  p-5 drop-shadow bg-green-400 opacity-70 text-center space-x-16 text-2xl nav-show-anim z-50">
+    <nav className="font-fasthand sticky top-0   py-2 drop-shadow bg-green-700 opacity-70 text-center space-x-16 text-3xl nav-show-anim z-50 shadow-sm dark:shadow-white">
       <a
         onClick={() => {
           console.log(window.location.href);
@@ -65,7 +65,7 @@ const StickyNav: FC<{ setFood: Function }> = (props: {
             navigate("/");
           }
         }}
-        className="border-2 border-transparent p-2 hover:border-2 hover:border-white  rounded-xl transition hover:duration-300 hover:cursor-pointer"
+        className="border-2 border-transparent px-2  hover:border-2  rounded-xl transition hover:cursor-pointer border-opacity-0 hover:border-opacity-100 hover:text-green-400 duration-200"
       >
         Home
       </a>
@@ -75,7 +75,7 @@ const StickyNav: FC<{ setFood: Function }> = (props: {
           e.preventDefault();
           randNum(props.setFood!);
         }}
-        className="border-2 border-transparent p-2 hover:border-2 hover:border-white  rounded-xl transition hover:duration-300 hover:cursor-pointer"
+        className="border-2 border-transparent px-2 hover:border-opacity-100 hover:text-green-400 duration-200  rounded-xl transition hover:duration-300 hover:cursor-pointer"
       >
         Random Recipes
       </a>
@@ -86,27 +86,28 @@ const StickyNav: FC<{ setFood: Function }> = (props: {
             behavior: "smooth",
           })
         }
-        className="border-2 border-transparent p-2 hover:border-2 hover:border-white  rounded-xl transition hover:duration-300 hover:cursor-pointer"
+        className="border-2 border-transparent px-2 hover:border-2 hover:border-opacity-100 hover:text-green-400 duration-200 rounded-xl transition hover:duration-300 hover:cursor-pointer"
       >
         About
       </a>
       <a
-        className="border-2 border-transparent p-2 hover:border-2 hover:border-white  rounded-xl transition hover:duration-300 hover:cursor-pointer"
+        className="border-2 border-transparent px-2 hover:border-opacity-100 hover:text-green-400 duration-200 rounded-xl transition hover:duration-300 hover:cursor-pointer"
         onClick={() => navigate("/Login")}
       >
         Login
       </a>
       {userLogged ? <a
         onClick={() => navigate("/like")}
-        className="border-2 border-transparent p-2 hover:border-2 hover:border-white  rounded-xl transition hover:duration-300 hover:cursor-pointer">
+        className="border-2 border-transparent px-2 hover:border-opacity-100 hover:text-green-400 duration-200 rounded-xl transition hover:duration-300 hover:cursor-pointer">
         Liked
       </a> : <></>}
 
       {userLogged ? <a
-        className="border-2 border-transparent p-2 hover:border-2 hover:border-white  rounded-xl transition hover:duration-300 hover:cursor-pointer"
+        className="border-2 border-transparent px-2 hover:border-opacity-100 hover:text-green-400 duration-200 rounded-xl transition hover:duration-300 hover:cursor-pointer "
         onClick={() => navigate("/AddDish")}>Add Dish</a> : <></>}
-      <ToggleSwitch></ToggleSwitch>
+      {/* <ToggleSwitch></ToggleSwitch> */}
     </nav>
+
   );
 };
 export default StickyNav;

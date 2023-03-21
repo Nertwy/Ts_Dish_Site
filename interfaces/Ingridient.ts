@@ -10,13 +10,13 @@ export interface Recipe {
   step: string[];
 }
 
-export interface ClientDish{
-  name:string,
-  slug:string,
-  cuisine:string,
-  ingredients:Ingredient[]
-  recipes:Recipe
-  like:boolean
+export interface ClientDish {
+  name: string,
+  slug: string,
+  cuisine: string,
+  ingredients: Ingredient[]
+  recipes: Recipe
+  like: boolean
 }
 export interface Dish {
   name: string;
@@ -28,6 +28,7 @@ export interface Dish {
   ingredients: Ingredient[];
   recipes: Recipe;
   transport?: Function;
+  likes?:number;
 }
 export interface LoginInterface {
   token: string,

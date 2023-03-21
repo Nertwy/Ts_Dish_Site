@@ -1,28 +1,38 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Dish } from "../../../interfaces/Ingridient";
-
+interface ClientLikedDish { 
+    dish_id:number,
+}
 interface DishState {
     dishes: Dish[];
-    loading: boolean
+    loading: boolean,
+    likedDishes:ClientLikedDish[]
 }
 const initialState: DishState = {
     dishes: [],
-    loading: true
-
+    loading: true,
+    likedDishes:[]
 }
 
 export const CardListSclice = createSlice({
     initialState,
     name: "list",
     reducers: {
+        pushLikedDishes:(state,action:PayloadAction<ClientLikedDish[]>)=>{
+            state.likedDishes = action.payload
+        },
         addDishToList: (state, action: PayloadAction<Dish>) => {
             state.dishes.push(action.payload)
             state.loading = false
         },
         modifyDishLike: (state, action: PayloadAction<number>) => {
-            state.dishes[action.payload].like = !state.dishes[action.payload].like
+            const index = state.dishes.findIndex((val)=> {
+                return val.id === action.payload
+            })
+            if(index===-1) return;
+            state.dishes[index].like = !state.dishes[index].like
         }
     }
 })
-export const { addDishToList, modifyDishLike } = CardListSclice.actions
+export const { addDishToList, modifyDishLike,pushLikedDishes } = CardListSclice.actions
 export default CardListSclice.reducer

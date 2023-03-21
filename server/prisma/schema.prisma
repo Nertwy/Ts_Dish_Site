@@ -38,6 +38,7 @@ model dishes {
   url         String      @db.VarChar(255)
   ingredients Json
   recipes     Json
+  likes       Decimal     @default(0) @db.Decimal
   DishLikes   DishLikes[]
 }
 

@@ -149,7 +149,7 @@ class RouteLogic {
     res.json(data);
     next();
   }
-  async data(req: Request, res: Response, next: Function) {
+  async data(req: Request, res: Response, next: NextFunction) {
     try {
       let id: number = Number(req.query.id);
       let dish = await getDishByIndex(id)
@@ -159,6 +159,9 @@ class RouteLogic {
     } finally {
       res.end();
     }
+  }
+  async getLikesOfDish(req:Request,res:Response,next:NextFunction){
+    
   }
 
 }

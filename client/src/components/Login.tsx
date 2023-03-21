@@ -1,12 +1,16 @@
 import React, { FC, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../app/store";
+import { useDispatch, useSelector } from "react-redux";
 import { Router, useNavigate } from "react-router-dom";
 import { Dish } from "../../../interfaces/Ingridient";
 import { User } from "../../../interfaces/user";
 import { getAccessToken } from "../AccessToken";
-import { modifyDishLike } from "../app/CardListSlice";
-import { login } from "../app/UserSlice";
+import { modifyDishLike, pushLikedDishes } from "../app/CardListSlice";
+import { RootState } from "../app/store";
+import { login, setUserToken } from "../app/UserSlice";
 import { useInput } from "../hooks/Hooks";
+import LikedDishes from "./pages/LikedDishesPage";
+import { apiLogin } from "../api/api";
 enum Role {
   Admin = "ADMIN",
   User = "USER",
@@ -148,7 +152,7 @@ const Register: React.FC<{ showLogin: Function }> = (prop) => {
 };
 
 export { Register };
-interface loginApi {
+export interface loginApi {
   token: string,
   success: boolean,
   likes: {
@@ -158,8 +162,9 @@ interface loginApi {
   }[]
 }
 const Login: FC<{ showLogin: Function }> = (props) => {
+  const LikedDishes = useAppSelector((state) => state.list.likedDishes)
   const navigator = useNavigate();
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const [title, setTitle] = useState<User>({
     id: -1,
     name: "",
@@ -178,32 +183,20 @@ const Login: FC<{ showLogin: Function }> = (props) => {
       [item]: a
     }));
   }
-  const LoginMiddleware = () => { };
   async function PostLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const token = getAccessToken();
-    const resul = await fetch("http://localhost:8000/login", {
-      method: "POST",
-      body: JSON.stringify(title),
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        authorization: token ? `bearer ${token}` : "",
-        Accept: "application/json"
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      }
-    });
-
+    const resul = await apiLogin(title)
     if (resul.status === 200) {
-      let data: loginApi = await resul.json();
+      let data: loginApi = await resul.data;
+      dispatch(setUserToken(data.token))
       data.likes.forEach((val) => dispatch(modifyDishLike(val.dish_id)))
       localStorage.setItem("JAT", data.token);
+      dispatch(pushLikedDishes(data.likes))
       dispatch(login())
       //after posting login there should be send 
       navigator('/')
     } else {
       console.log(resul.status);
-
       console.log("Wrong Loggin");
     }
   }

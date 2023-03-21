@@ -268,6 +268,12 @@ async function createLikesTable() {
     client.release();
   }
 }
+export async function getDishLikes(index: number) {
+  const dish = await prisma.dishes.findMany({
+    
+  })
+
+}
 export async function checkRefreshToken(token: string) {
 
 }
@@ -422,7 +428,7 @@ export async function insertUser(user: User): Promise<void> {
   await client.query(query, values);
   client.release();
 }
-export async function getDishByIndex(index: number):Promise<Dish> {
+export async function getDishByIndex(index: number): Promise<Dish> {
   const dish = await prisma.dishes.findFirst({
     skip: index,
     take: 1
@@ -435,9 +441,13 @@ export async function getDishByIndex(index: number):Promise<Dish> {
     recipes: JSON.parse(dish?.recipes?.toString()!),
     name: dish?.name!,
     slug: dish?.slug!,
-    url: dish?.url
+    url: dish?.url,
+    likes: Number(dish?.likes)
   }
   return res
+}
+export async function getNumberOfLikes(dish_id:number) {
+  
 }
 export async function getDishById(id: number): Promise<Dish> {
   const client = await pool.connect();

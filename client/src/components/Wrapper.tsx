@@ -10,7 +10,8 @@ import { TestPage } from "./TESTPAGE";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import LikedDishes from "./pages/LikedDishesPage";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Wrapper: FC = () => {
   const handleCardData = (food: Dish) => {
     SetCardData(food);
@@ -38,6 +39,8 @@ const Wrapper: FC = () => {
     //Pass a state hook to Home page and insert to it values of a card pressed and then pass it to DIsh page
     <StrictMode>
       <div className={theme ? "dark" : ''}>
+        {/* TODO: style toast component */}
+        <ToastContainer />
         <BrowserRouter basename='/'>
           <Routes>
             <Route path="/test" element={<Counter></Counter>} />

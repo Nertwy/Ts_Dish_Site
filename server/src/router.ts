@@ -53,5 +53,6 @@ router.post("/logout", RouteLogic.Logout);
 router.get("/dish", RouteLogic.getDish)
 router.get("/data", RouteLogic.data);
 router.get("/uploads/:name", RouteLogic.SendImage)
+router.get("/get-dish-likes",RouteLogic.getLikesOfDish)
 // router.get("/checkAccessToken", RouteLogic.Verify);
 export default router;

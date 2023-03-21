@@ -10,7 +10,7 @@ export const createAccessToken = (user: User): string => {
     { name: user.name, role: user.role, email: user.email, id: user.id },
     process.env.ACCESSSECRET as string,
     {
-      expiresIn: "15s"
+      expiresIn: "15m"
     }
   );
   return token;

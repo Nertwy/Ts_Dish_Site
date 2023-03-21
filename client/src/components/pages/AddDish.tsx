@@ -30,8 +30,17 @@ const AddDish: FC = () => {
   const handleRecipeSubmit = (args: string[]) => {
     dispatch(handleRecipeChange(args))
   }
-  const handleIngSubmit = (args: Ingredient[]) => {
-    dispatch(handleIngChange(args))
+  const handleIngSubmit = (args: string[]) => {
+    const ingArr: Ingredient[] = []
+    args.forEach((val) => {
+      ingArr.push({
+        amount: 0,
+        id: 0,
+        name: val,
+        measureUnit: ""
+      })
+    })
+    dispatch(handleIngChange(ingArr))
   }
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     const formData = new FormData();
