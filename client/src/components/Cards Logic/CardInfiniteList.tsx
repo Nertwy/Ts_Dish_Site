@@ -13,7 +13,7 @@ interface CardListProps {
 }
 export const CardList: FC<CardListProps> = ({ dishes }) => {
   return (
-    <div className=" bg-slate-100 grid auto-cols-fr   xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 dark:bg-gray-600">
+    <div className=" bg-slate-100 grid auto-cols-fr   xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 dark:bg-slate-700 py-8">
       {dishes.map((val, index) => {
         return <Card key={index} {...val} />
       })}
@@ -48,7 +48,7 @@ const CardInfiniteList: FC<{ func: Function | undefined }> = (prop: {
       ) : (
         <>
           <CardList dishes={cards} />
-          <div className="text-center self-center bg-slate-100">
+          <div className="text-center self-center bg-slate-100 dark:bg-slate-700">
             <button
               onClick={
                 fetchCards

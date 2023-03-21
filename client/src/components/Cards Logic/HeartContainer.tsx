@@ -25,7 +25,13 @@ const HeartButton: FC<Like> = ({ id, isLiked, numberOfLikes }) => {
   const dispatch = useDispatch()
   const handleLike = async () => {
     if (!userLogged) {
-      notify()
+      toast.error("user not logged In!",{
+        theme:"light",
+        closeOnClick:true,
+        hideProgressBar:true,
+        autoClose: 3000,
+      })
+      // notify()
       //handle not logged user with TOAST 
       return
     }
