@@ -5,7 +5,7 @@ import { Router, useNavigate } from "react-router-dom";
 import { Dish } from "../../../interfaces/Ingridient";
 import { User } from "../../../interfaces/user";
 import { getAccessToken } from "../AccessToken";
-import { modifyDishLike, pushLikedDishes } from "../app/CardListSlice";
+import { modifyDishLike, pushLikedDishes, removeHeartsActive, resetDishes } from "../app/CardListSlice";
 import { RootState } from "../app/store";
 import { login, setUserToken } from "../app/UserSlice";
 import { useInput } from "../hooks/Hooks";
@@ -162,7 +162,7 @@ export interface loginApi {
   }[]
 }
 const Login: FC<{ showLogin: Function }> = (props) => {
-  const LikedDishes = useAppSelector((state) => state.list.likedDishes)
+  // const dishes = useAppSelector((state)=>state.list.dishes)
   const navigator = useNavigate();
   const dispatch = useAppDispatch()
   const [title, setTitle] = useState<User>({
@@ -186,7 +186,10 @@ const Login: FC<{ showLogin: Function }> = (props) => {
   async function PostLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const resul = await apiLogin(title)
+
     if (resul.status === 200) {
+      dispatch(resetDishes())
+      dispatch(removeHeartsActive())
       let data: loginApi = await resul.data;
       dispatch(setUserToken(data.token))
       data.likes.forEach((val) => dispatch(modifyDishLike(val.dish_id)))
