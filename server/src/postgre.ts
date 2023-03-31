@@ -1,23 +1,55 @@
 import { NextFunction, Request, Response } from "express";
 import { Client, Pool, QueryResult } from "pg";
-import { ClientDish, Dish } from "../../interfaces/Ingridient";
+import { ClientDish, Comment, Dish } from "../../interfaces/Ingridient";
 import { User } from "../../interfaces/user";
 import ApiErrors from "./errors";
 import food from "./Database_of_things/FoodDB copy.json";
 import { DishLikes, Prisma, PrismaClient } from "@prisma/client";
-
 interface CustomRequest extends Request {
   data?: any; // Define the 'data' property as optional and of type 'any'
 }
 
 const postgreString = "postgresql://postgres:123@localhost:5432/postgres";
 //Refactore code to use Prisma fully without pg
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 const pool = new Pool({
   connectionString: postgreString,
 });
 
+async function createPostTable() {
+  const client = await pool.connect();
+  const createTableQuery = `
+  CREATE TABLE IF NOT EXISTS posts (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    body TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+  );`;
+  try {
+    await client.query(createTableQuery);
+    console.log("Table Posts created!");
+  } catch (error) {
+    console.error('Error creating table "Posts":', error);
+  }
+}
+async function createCommentsTable() {
+  const client = await pool.connect();
+  const createTableQuery = `
+  CREATE TABLE IF NOT EXISTS comments (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER REFERENCES posts(id),
+    body TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    user_id INTEGER REFERENCES users(id)
+  );`;
+  try {
+    await client.query(createTableQuery);
+    console.log("Table Comments created!");
+  } catch (error) {
+    console.error('Error creating table "comments":', error);
+  }
+}
 export async function createUserTable(): Promise<void> {
   const client = await pool.connect();
 
@@ -44,47 +76,81 @@ export async function createUserTable(): Promise<void> {
 }
 
 export async function insertDish(dish: ClientDish, url: string): Promise<void> {
-  const result = await prisma.dishes.create({
+  await prisma.dishes.create({
     data: {
       cuisine: dish.cuisine,
       ingredients: JSON.stringify(dish.ingredients),
       name: dish.name,
       recipes: JSON.stringify(dish.recipes),
       slug: dish.slug,
-      url: url
-    }
-  })
+      url: url,
+    },
+  });
+  return
 }
-// async function insertDish(dish: Dish): Promise<void> {
-//   const client = await pool.connect();
+async function TriggerForPosts() {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+    CREATE OR REPLACE FUNCTION create_post_for_dish()
+  RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO posts (title, body)
+  VALUES ('New Dish Added', CONCAT('A new dish has been added: ', NEW.name));
 
-//   try {
-//     await client.query("BEGIN");
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-//     const queryText =
-//       "INSERT INTO dishes (name,  cuisine, slug, url, ingredients, recipes) VALUES ($1, $2, $3, $4, $5, $6)";
-//     const values = [
-//       dish.name,
-//       dish.cuisine,
-//       dish.slug,
-//       dish.url,
-//       JSON.stringify(dish.ingredients),
-//       JSON.stringify(dish.recipes),
-//     ];
+CREATE TRIGGER create_post_for_dish_trigger
+AFTER INSERT ON dishes
+FOR EACH ROW
+EXECUTE FUNCTION create_post_for_dish();
+  `);
+  } catch (error) {
+    console.log(error);
+  }
+}
+async function push100Dishes() {
+  food.forEach(async (elem: any, index) => {
+    let data: ClientDish = {
+      cuisine: elem.cuisine,
+      ingredients: elem.Ingridiences,
+      name: elem.name,
+      recipes: elem.recipes!,
+      slug: elem.slug,
+      like: false,
+    };
+    await insertDish(data, elem.url);
+  });
+  console.log("dishes created");
+}
+async function TriggerForLikes() {
+  const client = await pool.connect();
+  try {
+    await client.query(`
+    CREATE OR REPLACE FUNCTION update_dish_likes()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        IF (TG_OP = 'DELETE') THEN
+            UPDATE dishes SET likes = likes - 1 WHERE id = OLD.dish_id;
+        ELSE
+            UPDATE dishes SET likes = likes + 1 WHERE id = NEW.dish_id;
+        END IF;
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
 
-//     await client.query(queryText, values);
-
-//     await client.query("COMMIT");
-//   } catch (error) {
-//     await client.query("ROLLBACK");
-//     throw error;
-//   } finally {
-//     client.release();
-//   }
-// }
-
+    CREATE TRIGGER update_dish_likes_trigger
+    AFTER INSERT OR UPDATE OR DELETE ON "DishLikes"
+    FOR EACH ROW
+    EXECUTE FUNCTION update_dish_likes();
+  `);
+  } catch (error) {
+    console.log(error);
+  }
+}
 async function createDishTable(): Promise<void> {
-
   const checkQuery = `
       SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'dishes';
     `;
@@ -97,7 +163,8 @@ async function createDishTable(): Promise<void> {
         slug VARCHAR(255) NOT NULL,
         url VARCHAR(255) NOT NULL,
         ingredients JSONB NOT NULL,
-        recipes JSONB NOT NULL
+        recipes JSONB NOT NULL,
+        likes INTEGER NOT NULL DEFAULT 0
       );
     `;
 
@@ -107,18 +174,7 @@ async function createDishTable(): Promise<void> {
     if (rows[0].count === "0") {
       await client.query(createQuery);
     } else {
-      // food.forEach(async (elem:any,index)=>{
-      //     let data:ClientDish = {
-      //         cuisine:elem.cuisine,
-      //         ingredients:elem.Ingridiences,
-      //         name:elem.name,
-      //         recipes:elem.recipes!,
-      //         slug:elem.slug,
-      //         like:false
-      //         // url:elem.url
-      //     };
-      //     await insertDish(data,elem.url)
-      // })
+      await push100Dishes()
     }
     client.release();
   } catch (error) {
@@ -236,16 +292,16 @@ export async function deleteRefreshToken(token: string): Promise<void> {
   try {
     const result = await prisma.refreshToken.findFirst({
       where: {
-        name: token
-      }
-    })
+        name: token,
+      },
+    });
 
     if (result) {
       await prisma.refreshToken.delete({
         where: {
-          id: result.id
-        }
-      })
+          id: result.id,
+        },
+      });
     }
   } catch (error) {
     console.error(error);
@@ -269,27 +325,25 @@ async function createLikesTable() {
   }
 }
 export async function getDishLikes(index: number) {
-  const dish = await prisma.dishes.findMany({
-    
-  })
-
+  const dish = await prisma.dishes.findMany({});
 }
-export async function checkRefreshToken(token: string) {
-
-}
+export async function checkRefreshToken(token: string) {}
 export async function getUserLikes(id: number) {
-  const client = await pool.connect()
-  const value = [id.toString()]
-  const query = `SELECT * FROM "DishLikes" WHERE user_id=$1`
+  const client = await pool.connect();
+  const value = [id.toString()];
+  const query = `SELECT * FROM "DishLikes" WHERE user_id=$1`;
   try {
-    const result: QueryResult<DishLikes> = await pool.query(query, value)
-    return result.rows
+    const result: QueryResult<DishLikes> = await pool.query(query, value);
+    return result.rows;
   } catch (error) {
     console.error(error);
-    return null
+    return null;
   }
 }
-export async function insertLike(dish_id: number, user_id: number): Promise<void> {
+export async function insertLike(
+  dish_id: number,
+  user_id: number
+): Promise<void> {
   const client = await pool.connect();
 
   try {
@@ -301,12 +355,15 @@ export async function insertLike(dish_id: number, user_id: number): Promise<void
     await client.query(insertQuery, values);
     // console.log('New like inserted successfully');
   } catch (err) {
-    console.error('Error inserting like:', err);
+    console.error("Error inserting like:", err);
   } finally {
     client.release();
   }
 }
-export async function deleteLike(dish_id: number, user_id: number): Promise<void> {
+export async function deleteLike(
+  dish_id: number,
+  user_id: number
+): Promise<void> {
   const client = await pool.connect();
 
   try {
@@ -318,12 +375,15 @@ export async function deleteLike(dish_id: number, user_id: number): Promise<void
     await client.query(deleteQuery, values);
     // console.log('Like deleted successfully');
   } catch (err) {
-    console.error('Error deleting like:', err);
+    console.error("Error deleting like:", err);
   } finally {
     client.release();
   }
 }
-export async function toggleLike(dishId: number, userId: number): Promise<void> {
+export async function toggleLike(
+  dishId: number,
+  userId: number
+): Promise<void> {
   const client = await pool.connect();
 
   try {
@@ -354,7 +414,7 @@ export async function toggleLike(dishId: number, userId: number): Promise<void> 
       // console.log('New like inserted successfully');
     }
   } catch (err) {
-    console.error('Error toggling like:', err);
+    console.error("Error toggling like:", err);
   } finally {
     client.release();
   }
@@ -428,11 +488,12 @@ export async function insertUser(user: User): Promise<void> {
   await client.query(query, values);
   client.release();
 }
-export async function getDishByIndex(index: number): Promise<Dish> {
+//DEBUG
+export async function getDishByIndex(index: number) {
   const dish = await prisma.dishes.findFirst({
     skip: index,
-    take: 1
-  })
+    take: 1,
+  });
 
   const res: Dish = {
     id: dish?.id,
@@ -442,13 +503,11 @@ export async function getDishByIndex(index: number): Promise<Dish> {
     name: dish?.name!,
     slug: dish?.slug!,
     url: dish?.url,
-    likes: Number(dish?.likes)
-  }
-  return res
+    likes: Number(dish?.likes),
+  };
+  return res;
 }
-export async function getNumberOfLikes(dish_id:number) {
-  
-}
+
 export async function getDishById(id: number): Promise<Dish> {
   const client = await pool.connect();
   const query = `SELECT * FROM dishes WHERE id=$1`;
@@ -457,8 +516,39 @@ export async function getDishById(id: number): Promise<Dish> {
   client.release();
   return dish.rows[0];
 }
-createDishTable();
-createUserTable();
-createRefreshTokenTable();
-createAccessTokenTable();
-createLikesTable();
+export async function getAllCommentsFromPost(postId: number) {
+  try {
+    const res = await prisma.comments.findMany({
+      where: {
+        post_id: postId,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+export async function addComment(comment: Comment, user_id: number) {
+  try {
+    const res = await prisma.comments.create({
+      data: {
+        body: comment.text,
+        post_id: comment.postId,
+        user_id: user_id,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+// push100Dishes()
+// createDishTable();
+// createUserTable();
+// createRefreshTokenTable();
+// createAccessTokenTable();
+// createLikesTable();
+// createPostTable();
+// TriggerForPosts()
+// createCommentsTable();
+// TriggerForLikes();

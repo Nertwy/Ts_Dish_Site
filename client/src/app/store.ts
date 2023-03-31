@@ -4,6 +4,7 @@ import counterReducer from '../features/counter/CounterSlice'
 import addDishSlice from "./addDishSlice";
 import CardListSclice from "./CardListSlice";
 import UserSlice from "./UserSlice";
+import postsSlice from './CommentSlice'
 interface ThemeState {
   darkMode: boolean
 }
@@ -33,6 +34,7 @@ export const store = configureStore({
     theme: themeSlice.reducer,
     user: UserSlice,
     addDish:addDishSlice,
+    posts:postsSlice,
   }
 })
 

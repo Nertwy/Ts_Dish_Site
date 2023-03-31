@@ -20,6 +20,7 @@ export const checkPropertiesNull = (obj: Object):boolean => {
   });
   return a;
 };
+
 export const fileIsImage = (filename: string|undefined): boolean => {
   let extension = filename?.split(".").pop();
   if(extension === "png" || extension === "jpeg" || extension === "gif" || extension ==="jpg") return true;

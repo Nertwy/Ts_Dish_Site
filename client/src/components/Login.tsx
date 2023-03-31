@@ -29,7 +29,6 @@ const Register: React.FC<{ showLogin: Function }> = (prop) => {
   });
 
   function handleChange(event: React.FormEvent<HTMLInputElement>) {
-    const RegisterMiddleware = () => { };
     let a = event.currentTarget.value;
     let item = event.currentTarget.name;
     // console.log(event.currentTarget.value);

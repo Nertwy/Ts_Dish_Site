@@ -38,7 +38,7 @@ model dishes {
   url         String      @db.VarChar(255)
   ingredients Json
   recipes     Json
-  likes       Decimal     @default(0) @db.Decimal
+  likes       Int         @default(0)
   DishLikes   DishLikes[]
 }
 
@@ -53,4 +53,23 @@ model users {
   AccessToken  AccessToken[]
   DishLikes    DishLikes[]
   RefreshToken RefreshToken[]
+  comments     comments[]
+}
+
+model comments {
+  id         Int       @id @default(autoincrement())
+  post_id    Int?
+  body       String
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  user_id    Int?
+  posts      posts?    @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model posts {
+  id         Int        @id @default(autoincrement())
+  title      String
+  body       String
+  created_at DateTime?  @default(now()) @db.Timestamp(6)
+  comments   comments[]
 }

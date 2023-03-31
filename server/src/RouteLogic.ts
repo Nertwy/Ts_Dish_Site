@@ -6,7 +6,7 @@ import {
   verifyRefreshToken,
 } from "./token";
 import { NextFunction, Request, Response } from "express";
-import { User } from "../../interfaces/user";
+import { User, UserTokenData } from "../../interfaces/user";
 import ApiErrors from "./errors";
 import multer from "multer";
 import { checkPropertiesNull, fileIsImage } from "./functions";
@@ -22,24 +22,26 @@ import {
   getUserLikes,
   insertDish,
   getDishById,
+  addComment,
 } from "./postgre";
-import { ClientDish, Dish } from "../../interfaces/Ingridient";
+import { ClientDish, Comment } from "../../interfaces/Ingridient";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
+import jwtDecode from "jwt-decode";
 
 const upload = multer({ dest: "uploads/" });
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 class RouteLogic {
   SendImage(req: Request, res: Response) {
-    let query = req.params.name
-    const fileDest = path.join(__dirname, '..', 'uploads', query)
-    res.sendFile(fileDest)
+    let query = req.params.name;
+    const fileDest = path.join(__dirname, "..", "uploads", query);
+    res.sendFile(fileDest);
   }
   async Like(req: Request, res: Response, next: Function) {
     try {
       let { dish_id, user_id } = req.body;
       // console.log(req.body);
-      await toggleLike(dish_id, user_id)
+      await toggleLike(dish_id, user_id);
     } catch (err) {
       console.error(err);
     } finally {
@@ -52,14 +54,14 @@ class RouteLogic {
       const refreshToken = createRefreshToken(userData);
       const accessToken = createAccessToken(userData);
       await storeRefreshToken(userData, refreshToken);
-      const user = await getUserByEmail(userData.email!)
+      const user = await getUserByEmail(userData.email!);
       sendRefreshToken(res, refreshToken);
-      let userLikes = await getUserLikes(user!.id)
+      let userLikes = await getUserLikes(user!.id);
       res.send({ token: accessToken, success: true, likes: userLikes });
       // console.log(userLikes);
-      //Setting the Authorization header in the response is not a common use case, 
+      //Setting the Authorization header in the response is not a common use case,
       //as the Authorization header is typically used in the request sent by the client to the server to authenticate the
-      // client with the server. However, there may be situations where you want to send an access token to the client in 
+      // client with the server. However, there may be situations where you want to send an access token to the client in
       //the response headers for use in subsequent requests.
       // res.setHeader("Authorization", `Bearer ${accessToken}`);
 
@@ -90,9 +92,24 @@ class RouteLogic {
       next(error);
     }
   }
+  async GetUserDish(req: Request, res: Response, next: NextFunction) {
+    const { jrt } = req.cookies;
+    try {
+      if (!jrt) {
+        next(ApiErrors.BadRequest("No token in cookie"));
+      }
+      const userData: any = jwtDecode(jrt);
+      const user = await getUserByEmail(userData.email!);
+      // sendRefreshToken(res, refreshToken);
+      let userLikes = await getUserLikes(user!.id);
+      res.send({ success: true, likes: userLikes });
+    } catch (error) {
+      console.log(error);
+    }
+  }
   async Refresh(req: Request, res: Response, next: Function) {
     try {
-      const { jrt } = req.cookies
+      const { jrt } = req.cookies;
       // console.log(req.cookies.jrt + "COOKIE TOKEN");
 
       if (!jrt) next(ApiErrors.BadRequest("No token In cookie"));
@@ -114,30 +131,28 @@ class RouteLogic {
       // writeRefreshTokenToDB(await getUserIdByName(user.name), newRT);
       res
         .status(200)
-        .cookie("jrt", newRT, {
-          httpOnly: true,
-        })
+        // .cookie("jrt", newRT, {
+        //   httpOnly: true,
+        // })
         .send({ ok: true, token: createAccessToken(user) });
     } catch (error) {
       next(error);
     }
   }
 
-
-
   async AddDish(req: Request, res: Response, next: Function) {
     try {
-      const { dish } = req.body
-      const clientDish: ClientDish = JSON.parse(dish)
-      clientDish.ingredients.pop()!
+      const { dish } = req.body;
+      const clientDish: ClientDish = JSON.parse(dish);
+      clientDish.ingredients.pop()!;
       console.log(clientDish.recipes);
-      
+
       // clientDish.recipes.step.pop()
-      const fileName = req.file?.filename
-      const url = "http://localhost:8000/uploads/" + fileName
+      const fileName = req.file?.filename;
+      const url = "http://localhost:8000/uploads/" + fileName;
       if (checkPropertiesNull(clientDish))
         throw next(ApiErrors.BadRequest("Not all fields have been filed"));
-      await insertDish(clientDish, url)
+      await insertDish(clientDish, url);
       res.send({ ok: true, message: "Created successfully" });
     } catch (error) {
       console.log(error);
@@ -152,7 +167,7 @@ class RouteLogic {
   async data(req: Request, res: Response, next: NextFunction) {
     try {
       let id: number = Number(req.query.id);
-      let dish = await getDishByIndex(id)
+      let dish = await getDishByIndex(id);
       res.json(dish);
     } catch (error) {
       res.status(400);
@@ -160,10 +175,27 @@ class RouteLogic {
       res.end();
     }
   }
-  async getLikesOfDish(req:Request,res:Response,next:NextFunction){
-    
-  }
+  async Comment(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { jrt } = req.cookies;
+      const userData:UserTokenData = jwtDecode(jrt)
+      console.log(userData);
+      
+      let comment: Comment = req.body;
+      //Check comment with middleware
+      console.log(comment);
 
+      await addComment(comment, userData.id);
+      res
+        .status(200)
+        .json({ ok: true, message: "your commnet added", comment: comment });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      next();
+    }
+  }
+  async getLikesOfDish(req: Request, res: Response, next: NextFunction) {}
 }
 
 export default new RouteLogic();

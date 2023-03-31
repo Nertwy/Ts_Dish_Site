@@ -40,29 +40,17 @@ export interface DishLikes {
   user_id: number,
   dish_id: number
 }
-// class DishClass implements Dish {
-//   name: string;
-//   id: number;
-//   cuisine: string;
-//   slug: string;
-//   url: string;
-//   ingredients: Ingredient[];
-//   recipes: Recipe;
-//   constructor(
-//     name: string,
-//     id: number,
-//     cuisine: string,
-//     slug: string,
-//     url: string,
-//     ingredients: Ingredient[],
-//     recipes: Recipe
-//   ) {
-//     this.name = name;
-//     this.id = id;
-//     this.cuisine = cuisine;
-//     this.slug = slug;
-//     this.url = url;
-//     this.ingredients = ingredients;
-//     this.recipes = recipes;
-//   }
-// }
+
+export interface Comment {
+  id: number;
+  text: string;
+  postId: number;
+}
+
+export interface Post {
+  id: number;
+  title: string;
+  body: string;
+  comments: Comment[];
+  сreatedAt?:Date;
+}

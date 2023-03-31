@@ -1,4 +1,3 @@
-
 import {
   emailValidatorMiddleware,
   verifyEmailExist,
@@ -11,22 +10,22 @@ import ApiErrors from "./errors";
 import RouteLogic from "./RouteLogic";
 import { checkIfLoginCorrect } from "./postgre";
 import { PrismaClient } from "@prisma/client";
-import swaggerUi from 'swagger-ui-express';
-import swaggerDocument from '../build/swagger.json'
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "../build/swagger.json";
 const router = Router();
 let storageConfig = multer.diskStorage({
   destination: (req, res, cb) => {
     cb(null, "./uploads");
   },
   filename(req, file, callback) {
-    const fileExt = file.originalname.split(".").pop()
-    callback(null,Date.now()+"."+fileExt);
-  }
+    const fileExt = file.originalname.split(".").pop();
+    callback(null, Date.now() + "." + fileExt);
+  },
 });
 const MIMETYPE_MAP: any = {
   "image/png": "png",
   "image/jpeg": "jpg",
-  "image/jpg": "jpg"
+  "image/jpg": "jpg",
 };
 const upload = multer({
   dest: "uploads/",
@@ -39,20 +38,26 @@ const upload = multer({
       callback(null, false);
     }
     callback(null, true);
-  }
+  },
 });
-router.use('/api-docs', swaggerUi.serve);
+router.use("/api-docs", swaggerUi.serve);
 router.use(cookieParser());
-router.get('/api-docs', swaggerUi.setup(swaggerDocument));
-router.post("/post-food", upload.single("file"), RouteLogic.AddDish)
-router.post("/register", emailValidatorMiddleware, verifyEmailExist, RouteLogic.Register);
+router.get("/api-docs", swaggerUi.setup(swaggerDocument));
+router.post("/post-food", upload.single("file"), RouteLogic.AddDish);
+router.post(
+  "/register",
+  emailValidatorMiddleware,
+  verifyEmailExist,
+  RouteLogic.Register
+);
 router.post("/login", checkIfLoginCorrect, RouteLogic.Login);
 router.post("/like", verifyTokenBearer, RouteLogic.Like);
 router.get("/refresh", RouteLogic.Refresh);
 router.post("/logout", RouteLogic.Logout);
-router.get("/dish", RouteLogic.getDish)
+router.get("/dish", RouteLogic.getDish);
 router.get("/data", RouteLogic.data);
-router.get("/uploads/:name", RouteLogic.SendImage)
-router.get("/get-dish-likes",RouteLogic.getLikesOfDish)
-// router.get("/checkAccessToken", RouteLogic.Verify);
+router.get("/uploads/:name", RouteLogic.SendImage);
+router.get("/get-dish-likes", RouteLogic.getLikesOfDish);
+router.get("/get-user-dish", RouteLogic.GetUserDish);
+router.post("/post-comment", RouteLogic.Comment);
 export default router;
