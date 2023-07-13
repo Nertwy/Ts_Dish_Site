@@ -11,7 +11,7 @@ model AccessToken {
   id      Int    @id @default(autoincrement())
   name    String
   user_id Int
-  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
+  users   Users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
 }
 
 model DishLikes {
@@ -19,18 +19,18 @@ model DishLikes {
   dish_id    Int
   user_id    Int
   created_at DateTime @default(now()) @db.Timestamp(6)
-  dishes     dishes   @relation(fields: [dish_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  dishes     Dishes   @relation(fields: [dish_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      Users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model RefreshToken {
   id      Int    @id @default(autoincrement())
   name    String
   user_id Int
-  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
+  users   Users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "user_id")
 }
 
-model dishes {
+model Dishes {
   id          Int         @id @default(autoincrement())
   name        String      @db.VarChar(255)
   cuisine     String      @db.VarChar(255)
@@ -42,7 +42,7 @@ model dishes {
   DishLikes   DishLikes[]
 }
 
-model users {
+model Users {
   id           Int            @id @default(autoincrement())
   name         String
   password     String
@@ -53,23 +53,23 @@ model users {
   AccessToken  AccessToken[]
   DishLikes    DishLikes[]
   RefreshToken RefreshToken[]
-  comments     comments[]
+  comments     Comments[]
 }
 
-model comments {
+model Comments {
   id         Int       @id @default(autoincrement())
   post_id    Int?
   body       String
   created_at DateTime? @default(now()) @db.Timestamp(6)
   user_id    Int?
-  posts      posts?    @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  posts      Posts?    @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      Users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model posts {
+model Posts {
   id         Int        @id @default(autoincrement())
   title      String
   body       String
   created_at DateTime?  @default(now()) @db.Timestamp(6)
-  comments   comments[]
+  comments   Comments[]
 }

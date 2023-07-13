@@ -1,11 +1,11 @@
-import { User } from "../../interfaces/user";
 import { decode, sign, verify } from "jsonwebtoken";
 import "dotenv/config";
 import { Request, Response } from "express";
 import ApiErrors from "./errors";
 import { getUserByEmail } from "./postgre";
+import { Users } from "@prisma/client";
 
-export const createAccessToken = (user: User): string => {
+export const createAccessToken = (user: Users): string => {
   const token = sign(
     { name: user.name, role: user.role, email: user.email, id: user.id },
     process.env.ACCESSSECRET as string,
@@ -15,14 +15,14 @@ export const createAccessToken = (user: User): string => {
   );
   return token;
 };
-export const createRefreshToken = (user: User): string => {
+export const createRefreshToken = (user: Users): string => {
   const token = sign(
     {
       name: user.name,
       role: user.role,
       email: user.email,
       id: user.id,
-      tokenVersion: user.tokens?.tokenVersion
+      // tokenVersion: user.tokens?.tokenVersion
     },
     process.env.REFRESHSECRET as string,
     {

@@ -25,7 +25,7 @@ import {
   addComment,
 } from "./postgre";
 import { ClientDish, Comment } from "../../interfaces/Ingridient";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Users } from "@prisma/client";
 import path from "path";
 import jwtDecode from "jwt-decode";
 
@@ -39,8 +39,9 @@ class RouteLogic {
   }
   async Like(req: Request, res: Response, next: Function) {
     try {
+      console.log(req.body);
+
       let { dish_id, user_id } = req.body;
-      // console.log(req.body);
       await toggleLike(dish_id, user_id);
     } catch (err) {
       console.error(err);
@@ -50,7 +51,7 @@ class RouteLogic {
   }
   async Login(req: Request, res: Response, next: Function) {
     try {
-      let userData: User = req.body;
+      let userData: Users = req.body;
       const refreshToken = createRefreshToken(userData);
       const accessToken = createAccessToken(userData);
       await storeRefreshToken(userData, refreshToken);
@@ -115,7 +116,6 @@ class RouteLogic {
       if (!jrt) next(ApiErrors.BadRequest("No token In cookie"));
 
       let payload: any = await verifyRefreshToken(jrt);
-      // console.log(payload + "PAYLOAD");
 
       if (payload === null) next(ApiErrors.BadRequest("Invalid Token"));
       // const user = await getUserByName(payload!.name);
@@ -129,12 +129,7 @@ class RouteLogic {
       await deleteRefreshToken(jrt);
       await storeRefreshToken(user, newRT);
       // writeRefreshTokenToDB(await getUserIdByName(user.name), newRT);
-      res
-        .status(200)
-        // .cookie("jrt", newRT, {
-        //   httpOnly: true,
-        // })
-        .send({ ok: true, token: createAccessToken(user) });
+      res.status(200).send({ ok: true, token: createAccessToken(user) });
     } catch (error) {
       next(error);
     }
@@ -146,8 +141,6 @@ class RouteLogic {
       const clientDish: ClientDish = JSON.parse(dish);
       clientDish.ingredients.pop()!;
       console.log(clientDish.recipes);
-
-      // clientDish.recipes.step.pop()
       const fileName = req.file?.filename;
       const url = "http://localhost:8000/uploads/" + fileName;
       if (checkPropertiesNull(clientDish))
@@ -178,9 +171,9 @@ class RouteLogic {
   async Comment(req: Request, res: Response, next: NextFunction) {
     try {
       const { jrt } = req.cookies;
-      const userData:UserTokenData = jwtDecode(jrt)
+      const userData: UserTokenData = jwtDecode(jrt);
       console.log(userData);
-      
+
       let comment: Comment = req.body;
       //Check comment with middleware
       console.log(comment);
